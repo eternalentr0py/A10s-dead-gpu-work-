@@ -5,7 +5,7 @@ PowerVR GE8320 "rgx") **boot to the lock screen with a dead GPU**, by replacing 
 graphics userland with a pure-CPU one, delivered as a **TWRP-flashable zip**. Purpose: reach the
 lock screen (TalkBack is enabled) so the user can unlock FBE-encrypted `/data` and recover it.
 
-Status: **stage 1 (toolchain + first `.so` build) only. Nothing here has been tested on a device yet.**
+Status: **stage 1 builds** (Mesa softpipe EGL + GLESv1/v2 + swrast DRI driver, ARMv7, packaged under `vendor_root/vendor/lib`). Nothing has been tested on a device yet.
 Read `docs/ARCHITECTURE.md` first, then `docs/CONTEXT.md`.
 
 | Path | What |

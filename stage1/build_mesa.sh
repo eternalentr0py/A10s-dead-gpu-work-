@@ -63,7 +63,7 @@ COMMON=(
   -Dglx=disabled -Dgbm=disabled -Degl-native-platform=android
   -Dgallium-drivers=swrast -Dvulkan-drivers= -Ddri-drivers=
   -Dllvm=disabled -Dshared-glapi=enabled -Dglvnd=false
-  -Degl-lib-suffix=_soft
+  -Degl-lib-suffix=_soft -Ddri-search-path=/vendor/lib/dri
   -Dlmsensors=disabled -Dlibunwind=disabled -Dvalgrind=disabled
   -Dbuild-tests=false -Dshader-cache=disabled -Dzstd=disabled
   -Dosmesa=false -Dgallium-xa=disabled -Dgallium-nine=false -Dgallium-opencl=disabled
@@ -91,11 +91,26 @@ done
 ninja -C "$WORK/build" 2>&1 | tee "$OUT/ninja.log"
 DESTDIR="$WORK/stage" ninja -C "$WORK/build" install >/dev/null
 find "$WORK/stage" \( -name '*.so' -o -name '*.so.*' \) -print | tee "$OUT/installed-files.txt"
-mkdir -p "$OUT/vendor_lib"
-find "$WORK/stage" -name '*.so' -exec cp -v {} "$OUT/vendor_lib/" \;
-[ -f "$PREFIX/lib/libdrm.so" ] && cp -v "$PREFIX/lib/libdrm.so" "$OUT/vendor_lib/" || true
-for f in "$OUT"/vendor_lib/*.so; do
+# ---- Package into a device layout (/vendor/lib/...), isolate names from stock libs ----
+L="$WORK/stage/usr/local/lib"
+D="$OUT/vendor_root/vendor/lib"; mkdir -p "$D/egl" "$D/dri"
+cp -v "$L/libEGL_soft.so.1.0.0"       "$D/egl/libEGL_soft.so"
+cp -v "$L/libGLESv1_CM.so.1.1.0"      "$D/egl/libGLESv1_CM_soft.so"
+cp -v "$L/libGLESv2.so.2.0.0"         "$D/egl/libGLESv2_soft.so"
+cp -v "$L/libglapi.so.0.0.0"          "$D/libglapi_soft.so"
+cp -v "$L/dri/swrast_dri.so"          "$D/dri/swrast_dri.so"
+cp -v "$PREFIX/lib/libdrm.so"         "$D/libdrm_soft.so"
+PE=patchelf
+for f in "$D"/egl/*.so "$D"/libglapi_soft.so "$D"/dri/swrast_dri.so "$D"/libdrm_soft.so; do
+  case "$f" in *libglapi_soft.so) $PE --set-soname libglapi_soft.so "$f";; *libdrm_soft.so) $PE --set-soname libdrm_soft.so "$f";; esac
+  $PE --replace-needed libglapi.so.0 libglapi_soft.so "$f" 2>/dev/null || true
+  $PE --replace-needed libdrm.so libdrm_soft.so "$f" 2>/dev/null || true
   "$TC/bin/llvm-strip" --strip-unneeded "$f" || true
-  { echo "# $(basename "$f")"; "$TC/bin/llvm-readelf" -h "$f" | grep -E 'Class|Machine'; "$TC/bin/llvm-readelf" -d "$f" | grep NEEDED; } >> "$OUT/elf-report.txt"
 done
+# ELF report + dependency sanity (everything NEEDED must be either shipped here or a platform lib)
+: > "$OUT/elf-report.txt"
+for f in $(find "$OUT/vendor_root" -name '*.so'); do
+  { echo "# ${f#$OUT/vendor_root}"; "$TC/bin/llvm-readelf" -h "$f" | grep -E 'Class|Machine'; "$TC/bin/llvm-readelf" -d "$f" | grep -E 'SONAME|NEEDED'; } >> "$OUT/elf-report.txt"
+done
+( cd "$OUT/vendor_root" && find . -type f -exec ls -l {} \; ) > "$OUT/layout.txt"
 echo "done -> $OUT/vendor_lib"

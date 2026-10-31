@@ -25,7 +25,7 @@ jobs:
       - name: Install build deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip python3-mako python3-setuptools ninja-build bison flex git
+          sudo apt-get install -y python3-pip python3-mako python3-setuptools ninja-build bison flex git patchelf
           pip3 install --user meson mako PyYAML
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
@@ -58,7 +58,7 @@ jobs:
         with:
           name: softgfx-stage1-armv7
           path: |
-            out/vendor_lib/
+            out/vendor_root/
             out/*.log
             out/*.txt
           if-no-files-found: warn
