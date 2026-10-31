@@ -4,11 +4,11 @@ cpp = '@TC@/bin/armv7a-linux-androideabi@API@-clang++'
 ar = '@TC@/bin/llvm-ar'
 strip = '@TC@/bin/llvm-strip'
 ld = '@TC@/bin/ld.lld'
-pkgconfig = '/bin/false'
+pkgconfig = 'pkg-config'
 llvm-config = '/bin/false'
 
 [host_machine]
-system = 'android'
+system = '@SYSTEM@'
 cpu_family = 'arm'
 cpu = 'armv7'
 endian = 'little'
@@ -18,3 +18,4 @@ c_args = ['-march=armv7-a', '-mfpu=neon', '-mfloat-abi=softfp']
 cpp_args = ['-march=armv7-a', '-mfpu=neon', '-mfloat-abi=softfp']
 c_link_args = ['-Wl,--build-id=none']
 cpp_link_args = ['-static-libstdc++']
+pkg_config_path = '@PKGPATH@'

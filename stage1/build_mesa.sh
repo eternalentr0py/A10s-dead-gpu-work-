@@ -9,24 +9,40 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 API=30
 TC="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64"
 WORK="${WORK:-$PWD/work}"
-mkdir -p "$WORK" "$OUT"
+PREFIX="$WORK/prefix"
+mkdir -p "$WORK" "$OUT" "$PREFIX"
 
-if [ ! -d "$WORK/mesa" ]; then
-  git clone --depth 1 --branch "$MESA_TAG" https://gitlab.freedesktop.org/mesa/mesa.git "$WORK/mesa"
+mkcross() { # $1 = meson host system name
+  sed -e "s#@TC@#$TC#g" -e "s#@API@#$API#g" -e "s#@SYSTEM@#$1#g" \
+      -e "s#@PKGPATH@#$PREFIX/lib/pkgconfig#g" "$HERE/android-armv7.cross.in" > "$WORK/cross-$1.txt"
+}
+mkcross linux; mkcross android
+
+[ -d "$WORK/mesa" ] || git clone --depth 1 --branch "$MESA_TAG" https://gitlab.freedesktop.org/mesa/mesa.git "$WORK/mesa"
+
+# Diagnostics: how this Mesa decides with_dri / EGL.
+{
+  for r in 195,215 262,276 360,396 440,482; do echo "=== meson.build lines $r"; sed -n "${r}p" "$WORK/mesa/meson.build"; done
+  echo "=== subprojects"; ls "$WORK/mesa/subprojects" 2>&1
+} > "$OUT/meson-dri-lines.txt" 2>&1 || true
+
+# libdrm (Mesa's android/dri2 path needs it; pkg-config is not available for the target)
+if [ ! -f "$PREFIX/lib/pkgconfig/libdrm.pc" ]; then
+  git clone --depth 1 --branch libdrm-2.4.110 https://gitlab.freedesktop.org/mesa/drm.git "$WORK/drm" >> "$OUT/libdrm.log" 2>&1 || true
+  ( meson setup "$WORK/drm-build" "$WORK/drm" --cross-file "$WORK/cross-linux.txt" --prefix "$PREFIX" --libdir lib \
+      --buildtype=release -Dintel=false -Dradeon=false -Damdgpu=false -Dnouveau=false -Dvmwgfx=false \
+      -Dfreedreno=false -Dvc4=false -Detnaviv=false -Dexynos=false -Dcairo-tests=false -Dtests=false \
+      -Dvalgrind=false -Dman-pages=false -Dudev=false -Dinstall-test-programs=false \
+    && ninja -C "$WORK/drm-build" install ) >> "$OUT/libdrm.log" 2>&1 \
+    && echo "libdrm OK" | tee -a "$OUT/libdrm.log" || echo "libdrm FAILED (continuing)" | tee -a "$OUT/libdrm.log"
 fi
 
-sed -e "s#@TC@#$TC#g" -e "s#@API@#$API#g" "$HERE/android-armv7.cross.in" > "$WORK/android-armv7.cross"
-
-# Diagnostics: how does this Mesa version decide with_dri / EGL?
-{ echo "== with_dri / EGL requirement lines =="; grep -nE "with_dri\b|EGL requires|with_dri2|with_platform_android" "$WORK/mesa/meson.build" | head -60; } > "$OUT/meson-dri-lines.txt" 2>&1 || true
-
 COMMON=(
-  --cross-file "$WORK/android-armv7.cross"
   --buildtype=release -Db_ndebug=true -Db_lto=false
   -Dplatforms=android -Dplatform-sdk-version=$API -Dandroid-stub=true
   -Degl=enabled -Dgles1=enabled -Dgles2=enabled -Dopengl=true
   -Dglx=disabled -Dgbm=disabled -Degl-native-platform=android
-  -Dgallium-drivers=swrast -Dvulkan-drivers=
+  -Dgallium-drivers=swrast -Dvulkan-drivers= -Ddri-drivers=
   -Dllvm=disabled -Dshared-glapi=enabled -Dglvnd=false
   -Degl-lib-suffix=_soft
   -Dlmsensors=disabled -Dlibunwind=disabled -Dvalgrind=disabled
@@ -34,34 +50,32 @@ COMMON=(
   -Dosmesa=false -Dgallium-xa=disabled -Dgallium-nine=false -Dgallium-opencl=disabled
   --wrap-mode=default
 )
-# Candidate extra option sets, tried in order until one configures.
+# host system name seen by meson, then extra options; first that configures wins
 CANDIDATES=(
-  "-Ddri-drivers="
-  "-Ddri-drivers=swrast"
-  "-Ddri-drivers=auto"
-  "-Ddri-drivers= -Dglx=dri"
-  "-Ddri-drivers=swrast -Dglx=dri"
+  "linux|"
+  "linux|-Ddri3=disabled"
+  "android|-Ddri-drivers=i915"
 )
 ok=0; i=0
-for extra in "${CANDIDATES[@]}"; do
-  i=$((i+1)); rm -rf "$WORK/build"
-  echo "### candidate $i: $extra" | tee -a "$OUT/meson-setup.log"
+for c in "${CANDIDATES[@]}"; do
+  sys="${c%%|*}"; extra="${c#*|}"; i=$((i+1)); rm -rf "$WORK/build"
+  echo "### candidate $i: system=$sys extra=$extra" | tee -a "$OUT/meson-setup.log"
   # shellcheck disable=SC2086
-  if meson setup "$WORK/build" "$WORK/mesa" "${COMMON[@]}" $extra >> "$OUT/meson-setup.log" 2>&1; then
+  if meson setup "$WORK/build" "$WORK/mesa" --cross-file "$WORK/cross-$sys.txt" "${COMMON[@]}" $extra >> "$OUT/meson-setup.log" 2>&1; then
     echo "### candidate $i configured OK" | tee -a "$OUT/meson-setup.log"; ok=1; break
   else
     echo "### candidate $i FAILED:" | tee -a "$OUT/meson-setup.log"
-    grep -E "ERROR|Problem encountered" "$OUT/meson-setup.log" | tail -3 | tee -a "$OUT/meson-setup.log"
+    grep -E "ERROR|Problem encountered" "$OUT/meson-setup.log" | tail -2 | tee -a "$OUT/meson-setup.log"
   fi
 done
 [ "$ok" = 1 ] || { echo "no candidate configured"; exit 1; }
 
 ninja -C "$WORK/build" 2>&1 | tee "$OUT/ninja.log"
-
 DESTDIR="$WORK/stage" ninja -C "$WORK/build" install >/dev/null
 find "$WORK/stage" \( -name '*.so' -o -name '*.so.*' \) -print | tee "$OUT/installed-files.txt"
 mkdir -p "$OUT/vendor_lib"
-find "$WORK/stage" \( -name '*.so' \) -exec cp -v {} "$OUT/vendor_lib/" \;
+find "$WORK/stage" -name '*.so' -exec cp -v {} "$OUT/vendor_lib/" \;
+[ -f "$PREFIX/lib/libdrm.so" ] && cp -v "$PREFIX/lib/libdrm.so" "$OUT/vendor_lib/" || true
 for f in "$OUT"/vendor_lib/*.so; do
   "$TC/bin/llvm-strip" --strip-unneeded "$f" || true
   { echo "# $(basename "$f")"; "$TC/bin/llvm-readelf" -h "$f" | grep -E 'Class|Machine'; "$TC/bin/llvm-readelf" -d "$f" | grep NEEDED; } >> "$OUT/elf-report.txt"
