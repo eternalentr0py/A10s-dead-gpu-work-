@@ -15,9 +15,6 @@ on:
 permissions:
   contents: write
 
-permissions:
-  contents: write
-
 jobs:
   stage1-mesa-softpipe:
     runs-on: ubuntu-22.04
