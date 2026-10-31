@@ -12,6 +12,9 @@ on:
         default: "r25c"
         required: true
 
+permissions:
+  contents: write
+
 jobs:
   stage1-mesa-softpipe:
     runs-on: ubuntu-22.04
@@ -47,3 +50,22 @@ jobs:
             out/*.log
             out/*.txt
           if-no-files-found: warn
+
+      - name: Publish logs to ci-logs branch (readable without artifact download)
+        if: always()
+        run: |
+          mkdir -p /tmp/ci && cd /tmp/ci && rm -rf repo && git clone --depth 1 "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" repo
+          cd repo
+          git checkout --orphan ci-logs-new 2>/dev/null || git checkout -b ci-logs-new
+          git rm -rf . >/dev/null 2>&1 || true
+          mkdir -p logs
+          for f in "$GITHUB_WORKSPACE"/out/*.log "$GITHUB_WORKSPACE"/out/*.txt; do
+            [ -f "$f" ] && tail -n 400 "$f" > "logs/$(basename "$f")"
+          done
+          for f in "$GITHUB_WORKSPACE"/work/build/meson-logs/meson-log.txt; do
+            [ -f "$f" ] && tail -n 200 "$f" > "logs/meson-log-tail.txt"
+          done
+          echo "run ${{ github.run_id }} status ${{ job.status }}" > logs/RUN.txt
+          git config user.name ci; git config user.email ci@example.invalid
+          git add logs; git commit -m "logs for run ${{ github.run_id }}" >/dev/null
+          git push -f origin HEAD:ci-logs
