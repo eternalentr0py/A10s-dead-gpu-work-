@@ -31,7 +31,7 @@ if [ ! -f "$PREFIX/lib/pkgconfig/libdrm.pc" ]; then
   git clone --depth 1 --branch libdrm-2.4.110 https://gitlab.freedesktop.org/mesa/drm.git "$WORK/drm" >> "$OUT/libdrm.log" 2>&1 || true
   ( meson setup "$WORK/drm-build" "$WORK/drm" --cross-file "$WORK/cross-linux.txt" --prefix "$PREFIX" --libdir lib \
       --buildtype=release -Dintel=false -Dradeon=false -Damdgpu=false -Dnouveau=false -Dvmwgfx=false \
-      -Dfreedreno=false -Dvc4=false -Detnaviv=false -Dexynos=false -Dcairo-tests=false -Dtests=false \
+      -Dfreedreno=false -Dvc4=false -Detnaviv=false -Dexynos=false -Dcairo-tests=false \
       -Dvalgrind=false -Dman-pages=false -Dudev=false -Dinstall-test-programs=false \
     && ninja -C "$WORK/drm-build" install ) >> "$OUT/libdrm.log" 2>&1 \
     && echo "libdrm OK" | tee -a "$OUT/libdrm.log" || echo "libdrm FAILED (continuing)" | tee -a "$OUT/libdrm.log"
@@ -53,8 +53,7 @@ COMMON=(
 # host system name seen by meson, then extra options; first that configures wins
 CANDIDATES=(
   "linux|"
-  "linux|-Ddri3=disabled"
-  "android|-Ddri-drivers=i915"
+  "linux|-Dplatform-sdk-version=29"
 )
 ok=0; i=0
 for c in "${CANDIDATES[@]}"; do
@@ -64,8 +63,8 @@ for c in "${CANDIDATES[@]}"; do
   if meson setup "$WORK/build" "$WORK/mesa" --cross-file "$WORK/cross-$sys.txt" "${COMMON[@]}" $extra >> "$OUT/meson-setup.log" 2>&1; then
     echo "### candidate $i configured OK" | tee -a "$OUT/meson-setup.log"; ok=1; break
   else
-    echo "### candidate $i FAILED:" | tee -a "$OUT/meson-setup.log"
-    grep -E "ERROR|Problem encountered" "$OUT/meson-setup.log" | tail -2 | tee -a "$OUT/meson-setup.log"
+    echo "### candidate $i FAILED" | tee -a "$OUT/meson-setup.log"
+    { echo "=== candidate $i (system=$sys extra=$extra) errors/last lines"; grep -nE "ERROR|Problem encountered|Dependency .* not found|NO \(tried" "$WORK/build/meson-logs/meson-log.txt" | tail -15; tail -n 12 "$WORK/build/meson-logs/meson-log.txt"; } >> "$OUT/errors.txt" 2>&1 || true
   fi
 done
 [ "$ok" = 1 ] || { echo "no candidate configured"; exit 1; }
