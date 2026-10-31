@@ -1,0 +1,40 @@
+# Architecture and plan
+
+## Why "just a software EGL" is not enough
+SurfaceFlinger (Android 11) needs four graphics layers to agree. Two of them are GPU-bound on this device:
+
+1. **EGL/GLES** (RenderEngine). PowerVR `libEGL_mtk` -> dead. Replace with a CPU implementation.
+2. **gralloc allocator/mapper 4.0**. The vendor allocator links `libPVRMtkutils`/`libsrv_um` and allocates through
+   the PVR driver -> also dead. Replace with a CPU-memory gralloc.
+3. **hwcomposer**. MTK HWC (`hwcomposer.mt6765`) interprets MTK/PVR gralloc handles via `libgralloc_extra`. If gralloc
+   is replaced, HWC must be replaced too. The composer service already links `libhwc2onfbadapter`, i.e. AOSP can drive
+   the panel from `/dev/graphics/fb0` (MTK_FB is enabled in the kernel) with client composition only.
+4. **Boot wiring**: `ro.hardware.egl`, vintf manifest, init rc, SELinux.
+
+A software EGL must also support **`EGL_ANDROID_image_native_buffer`** (SurfaceFlinger imports every layer buffer and
+the client-target buffer as EGLImages). Stock Mesa `swrast` on Android and ANGLE-on-SwiftShader both lack a CPU-only
+path for that, so stage 2 needs a shim or a Mesa patch that backs EGLImages with gralloc-mapped memory.
+
+## Components
+| # | Component | Approach | Status |
+|---|---|---|---|
+| 1 | GLES 1/2/3 + EGL | Mesa **softpipe** (no LLVM; works on ARMv7) cross-built with the NDK, ARMv7, API 30 | stage 1 (CI build only) |
+| 2 | EGL native-buffer shim | CPU copy-in/copy-out EGLImage backed by `gralloc` lock/unlock; native fence = already-signalled fd | not started |
+| 3 | gralloc | Replace allocator 4.0 + mapper 4.0, or fall back to 2.0/3.0 so `gralloc.default` (ashmem + fb) is used | design |
+| 4 | HWC | Remove `hwcomposer.mt6765.so` so composer falls back to `hwc2onfbadapter` (fb0 client composition) | design |
+| 5 | Wiring | `ro.hardware.egl=soft`, disable PVR/GED services, vintf edit, SELinux permissive for bring-up | design |
+| 6 | TWRP zip | Mount `/vendor` `/system_root`, back up originals, install, `uninstall` zip that restores | not started |
+
+## Risks / unknowns (be honest)
+- Cannot be tested here. Every stage needs on-device logs. Expect several iterations.
+- SurfaceFlinger on Android 11 may hard-fail without gralloc 4.0 if the vintf manifest/compat matrix requires it.
+  Mitigation: keep declaring an allocator/mapper we implement ourselves.
+- softpipe at the panel resolution is slow. Fine for a lock screen with TalkBack, not for general use.
+- SELinux: Samsung kernel is `SELINUX_DEVELOP=y`; permissive via a vendor init rc is plausible but unverified.
+- FBE unlock itself (keymaster/gatekeeper/vaultkeeper) is independent of the GPU, but `vaultkeeper` is present in the
+  manifest; not yet checked that it starts without the GPU services.
+- The `ro.hardware.egl=meow` anomaly may mean earlier experiments modified `/vendor`; restore stock first.
+
+## Alternative that may be far simpler for the stated goal (data recovery)
+Decrypting `/data` inside TWRP (see `a10s-twrp-crypto`) avoids all of the above. This repo exists because that route
+is blocked; keep both options open.

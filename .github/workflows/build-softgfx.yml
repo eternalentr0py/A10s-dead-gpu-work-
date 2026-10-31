@@ -1,0 +1,49 @@
+name: build-softgfx
+
+on:
+  workflow_dispatch:
+    inputs:
+      mesa_tag:
+        description: "Mesa git tag"
+        default: "mesa-21.3.9"
+        required: true
+      ndk:
+        description: "NDK version"
+        default: "r25c"
+        required: true
+
+jobs:
+  stage1-mesa-softpipe:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-mako python3-setuptools ninja-build bison flex git
+          pip3 install --user meson mako PyYAML
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Set up NDK
+        id: ndk
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: ${{ inputs.ndk }}
+
+      - name: Build Mesa softpipe (armeabi-v7a)
+        env:
+          ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+        run: stage1/build_mesa.sh "${{ inputs.mesa_tag }}" "$GITHUB_WORKSPACE/out"
+
+      - name: Upload .so files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: softgfx-stage1-armv7
+          path: |
+            out/vendor_lib/
+            out/*.log
+            out/*.txt
+          if-no-files-found: warn

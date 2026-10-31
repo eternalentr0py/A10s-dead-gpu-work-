@@ -1,0 +1,14 @@
+# android.hardware.graphics.allocator@4.0-service-mediatek
+  Class:                             ELF32
+  Machine:                           ARM
+NEEDED libPVRMtkutils.so
+NEEDED libc++.so
+NEEDED libbase.so
+NEEDED liblog.so
+NEEDED libutils.so
+NEEDED libhardware.so
+NEEDED libhidlbase.so
+NEEDED libhidlmemory.so
+NEEDED libgralloctypes.so
+NEEDED android.hardware.graphics.allocator@4.0.so
+NEEDED libc.so

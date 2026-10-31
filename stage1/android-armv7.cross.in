@@ -1,0 +1,20 @@
+[binaries]
+c = '@TC@/bin/armv7a-linux-androideabi@API@-clang'
+cpp = '@TC@/bin/armv7a-linux-androideabi@API@-clang++'
+ar = '@TC@/bin/llvm-ar'
+strip = '@TC@/bin/llvm-strip'
+ld = '@TC@/bin/ld.lld'
+pkgconfig = '/bin/false'
+llvm-config = '/bin/false'
+
+[host_machine]
+system = 'android'
+cpu_family = 'arm'
+cpu = 'armv7'
+endian = 'little'
+
+[built-in options]
+c_args = ['-march=armv7-a', '-mfpu=neon', '-mfloat-abi=softfp']
+cpp_args = ['-march=armv7-a', '-mfpu=neon', '-mfloat-abi=softfp']
+c_link_args = ['-Wl,--build-id=none']
+cpp_link_args = ['-static-libstdc++']

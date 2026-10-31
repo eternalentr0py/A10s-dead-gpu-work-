@@ -1,0 +1,122 @@
+=== collect_gfx_files.sh starting Fri Jan  1 00:13:43 GMT 2010 ===
+mount: '/system' not in fstab
+[mount] /system: attempted, could not confirm mount (may still work for reads)
+mount: '/dev/block/mmcblk0p33'->'/vendor': Device or resource busy
+[mount] /vendor: OK (or already mounted)
+mount: '/dev/block/mmcblk0p35'->'/system_root': Device or resource busy
+[mount] /system_root: OK (or already mounted)
+mount: '/dev/block/mmcblk0p34'->'/product': Device or resource busy
+[mount] /product: OK (or already mounted)
+
+--- EGL / GLES libraries ---
+[OK]   /vendor/lib/egl/libEGL_mtk.so
+[OK]   /vendor/lib/egl/libGLESv1_CM_mtk.so
+[OK]   /vendor/lib/egl/libGLESv2_mtk.so
+[SKIP] /vendor/lib64/egl/libEGL_*.so (no matches)
+[SKIP] /vendor/lib64/egl/libGLESv1_CM_*.so (no matches)
+[SKIP] /vendor/lib64/egl/libGLESv2_*.so (no matches)
+[SKIP] /system/vendor/lib/egl/libEGL_*.so (no matches)
+[SKIP] /system/vendor/lib/egl/libGLESv1_CM_*.so (no matches)
+[SKIP] /system/vendor/lib/egl/libGLESv2_*.so (no matches)
+[SKIP] /system/vendor/lib64/egl/libEGL_*.so (no matches)
+[SKIP] /system/vendor/lib64/egl/libGLESv1_CM_*.so (no matches)
+[SKIP] /system/vendor/lib64/egl/libGLESv2_*.so (no matches)
+
+--- VINTF manifests ---
+[OK]   /vendor/etc/vintf/manifest.xml
+[OK]   /vendor/etc/vintf/manifest/android.hardware.biometrics.fingerprint@2.1-service.xml
+[OK]   /vendor/etc/vintf/manifest/android.hardware.cas@1.2-service.xml
+[OK]   /vendor/etc/vintf/manifest/android.hardware.dumpstate@1.1-service-lazy.xml
+[OK]   /vendor/etc/vintf/manifest/android.hardware.gpu@1.0-service.xml
+[OK]   /vendor/etc/vintf/manifest/android.hardware.health@2.1-samsung.xml
+[OK]   /vendor/etc/vintf/manifest/android.hardware.wifi.hostapd.xml
+[OK]   /vendor/etc/vintf/manifest/android.hardware.wifi@1.0-service.xml
+[OK]   /vendor/etc/vintf/manifest/engmode_manifest.xml
+[OK]   /vendor/etc/vintf/manifest/hyper-default-sec.xml
+[OK]   /vendor/etc/vintf/manifest/lights-default-sec.xml
+[OK]   /vendor/etc/vintf/manifest/manifest.xml
+[OK]   /vendor/etc/vintf/manifest/manifest_android.hardware.drm@1.3-service.clearkey.xml
+[OK]   /vendor/etc/vintf/manifest/manifest_android.hardware.drm@1.3-service.widevine.xml
+[OK]   /vendor/etc/vintf/manifest/power-default.xml
+[OK]   /vendor/etc/vintf/manifest/sec_c2_manifest_default.xml
+[OK]   /vendor/etc/vintf/manifest/vaultkeeper_manifest.xml
+[OK]   /vendor/etc/vintf/manifest/vendor.samsung.hardware.hqm@1.0-manifest.xml
+[OK]   /vendor/etc/vintf/manifest/vendor.samsung.hardware.thermal@1.0-manifest.xml
+[OK]   /vendor/etc/vintf/manifest/vendor.samsung.hardware.wifi.hostapd.xml
+[OK]   /vendor/etc/vintf/manifest/vendor.samsung.hardware.wifi@2.0-service.xml
+[SKIP] /system/vendor/etc/vintf/manifest.xml (not found)
+[SKIP] /system/vendor/etc/vintf/manifest/*.xml (no matches)
+
+--- Composer / Allocator HAL binaries ---
+[OK]   /vendor/bin/hw/android.hardware.graphics.composer@2.1-service
+[OK]   /vendor/bin/hw/android.hardware.graphics.allocator@4.0-service-mediatek
+[SKIP] /system/vendor/bin/hw/android.hardware.graphics.composer* (no matches)
+[SKIP] /system/vendor/bin/hw/android.hardware.graphics.allocator* (no matches)
+
+--- Gralloc / Vulkan / HWComposer HAL modules ---
+[OK]   /vendor/lib/hw/vulkan.mt6765.so
+[SKIP] /vendor/lib64/hw/vulkan.*.so (no matches)
+[OK]   /vendor/lib/hw/gralloc.default.so
+[OK]   /vendor/lib/hw/gralloc.rogue.so
+[SKIP] /vendor/lib64/hw/gralloc.*.so (no matches)
+[OK]   /vendor/lib/hw/hwcomposer.mt6765.so
+[SKIP] /vendor/lib64/hw/hwcomposer.*.so (no matches)
+[SKIP] /system/vendor/lib/hw/vulkan.*.so (no matches)
+[SKIP] /system/vendor/lib64/hw/vulkan.*.so (no matches)
+[SKIP] /system/vendor/lib/hw/gralloc.*.so (no matches)
+[SKIP] /system/vendor/lib64/hw/gralloc.*.so (no matches)
+[SKIP] /system/vendor/lib/hw/hwcomposer.*.so (no matches)
+[SKIP] /system/vendor/lib64/hw/hwcomposer.*.so (no matches)
+
+--- PowerVR / GPU firmware blobs ---
+[SKIP] /vendor/firmware/*pvr* (no matches)
+[SKIP] /vendor/firmware/*rogue* (no matches)
+[OK]   /vendor/firmware/rgx.fw
+[OK]   /vendor/firmware/rgx.sh
+[OK]   /vendor/firmware/rgx.fw
+[SKIP] /system/vendor/firmware/*pvr* (no matches)
+[SKIP] /system/vendor/firmware/*rogue* (no matches)
+[SKIP] /system/vendor/firmware/*gx* (no matches)
+[SKIP] /system/vendor/firmware/*.fw (no matches)
+
+--- PowerVR kernel module ---
+[SKIP] /vendor/lib/modules/*pvr* (no matches)
+[SKIP] /vendor/lib64/modules/*pvr* (no matches)
+[SKIP] /system/vendor/lib/modules/*pvr* (no matches)
+[SKIP] /system/vendor/lib64/modules/*pvr* (no matches)
+[SKIP] /lib/modules/*pvr* (no matches)
+[SKIP] /system/lib/modules/*pvr* (no matches)
+
+--- build.prop files ---
+[SKIP] /system/build.prop (not found)
+[OK]   /system_root/system/build.prop
+[OK]   /vendor/build.prop
+[SKIP] /system/vendor/build.prop (not found)
+[OK]   /vendor/default.prop
+[FAIL] /default.prop (copy error)
+
+--- SurfaceFlinger init rc (plus disabled/bak variants) ---
+[SKIP] /system/etc/init/surfaceflinger.rc (not found)
+[SKIP] /system/etc/init/surfaceflinger.rc.disabled (not found)
+[SKIP] /system/etc/init/surfaceflinger.rc.bak (not found)
+[OK]   /system_root/system/etc/init/surfaceflinger.rc
+[SKIP] /system_root/system/etc/init/surfaceflinger.rc.disabled (not found)
+[SKIP] /system_root/system/etc/init/surfaceflinger.rc.bak (not found)
+
+--- Feature/permission XML declarations ---
+[SKIP] /system/etc/permissions/android.hardware.vulkan*.xml (no matches)
+[SKIP] /system/etc/permissions/android.software.opengles*.xml (no matches)
+[SKIP] /system_root/system/etc/permissions/android.hardware.vulkan*.xml (no matches)
+[SKIP] /system_root/system/etc/permissions/android.software.opengles*.xml (no matches)
+
+--- Kernel log (dmesg) ---
+[OK]   dmesg captured (5297 lines)
+[OK]   /proc/kmsg
+[SKIP] /sys/fs/pstore/console-ramoops (not found)
+[SKIP] /sys/fs/pstore/console-ramoops-* (no matches)
+
+--- Kernel config (if exposed) ---
+[OK]   /proc/config.gz
+
+=== collection finished Fri Jan  1 00:13:56 GMT 2010 ===
+Files collected under: /tmp/gfx_collect

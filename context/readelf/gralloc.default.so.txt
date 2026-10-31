@@ -1,0 +1,9 @@
+# gralloc.default.so
+  Class:                             ELF32
+  Machine:                           ARM
+NEEDED liblog.so
+NEEDED libcutils.so
+NEEDED libc++.so
+NEEDED libc.so
+NEEDED libm.so
+NEEDED libdl.so

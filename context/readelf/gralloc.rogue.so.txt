@@ -1,0 +1,17 @@
+# gralloc.rogue.so
+  Class:                             ELF32
+  Machine:                           ARM
+NEEDED libsrv_um.so
+NEEDED libPVRMtkutils.so
+NEEDED libm.so
+NEEDED libhardware.so
+NEEDED liblog.so
+NEEDED libdl.so
+NEEDED libion.so
+NEEDED libion_mtk.so
+NEEDED libgralloc_extra.so
+NEEDED libcutils.so
+NEEDED libgpud.so
+NEEDED libdrm.so
+NEEDED libsync.so
+NEEDED libc.so

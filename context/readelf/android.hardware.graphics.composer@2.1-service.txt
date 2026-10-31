@@ -1,0 +1,20 @@
+# android.hardware.graphics.composer@2.1-service
+  Class:                             ELF32
+  Machine:                           ARM
+NEEDED android.hardware.graphics.composer@2.1.so
+NEEDED android.hardware.graphics.composer@2.1-resources.so
+NEEDED libbase.so
+NEEDED libbinder.so
+NEEDED libcutils.so
+NEEDED libfmq.so
+NEEDED libhardware.so
+NEEDED libhidlbase.so
+NEEDED libhwc2on1adapter.so
+NEEDED libhwc2onfbadapter.so
+NEEDED liblog.so
+NEEDED libsync.so
+NEEDED libutils.so
+NEEDED libc++.so
+NEEDED libc.so
+NEEDED libm.so
+NEEDED libdl.so

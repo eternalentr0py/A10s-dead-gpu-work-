@@ -1,0 +1,6 @@
+# libEGL_mtk.so
+  Class:                             ELF32
+  Machine:                           ARM
+NEEDED libIMGegl.so
+NEEDED libm.so
+NEEDED libc.so

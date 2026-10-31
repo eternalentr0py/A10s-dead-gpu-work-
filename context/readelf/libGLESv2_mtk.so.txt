@@ -1,0 +1,16 @@
+# libGLESv2_mtk.so
+  Class:                             ELF32
+  Machine:                           ARM
+NEEDED libIMGegl.so
+NEEDED libsrv_um.so
+NEEDED libglslcompiler.so
+NEEDED libusc.so
+NEEDED libPVRMtkutils.so
+NEEDED libm.so
+NEEDED liblog.so
+NEEDED libgpu_aux.so
+NEEDED libgralloc_extra.so
+NEEDED libged.so
+NEEDED libgpud.so
+NEEDED libsync.so
+NEEDED libc.so
