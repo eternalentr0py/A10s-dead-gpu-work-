@@ -15,6 +15,9 @@ on:
 permissions:
   contents: write
 
+permissions:
+  contents: write
+
 jobs:
   stage1-mesa-softpipe:
     runs-on: ubuntu-22.04
@@ -39,6 +42,18 @@ jobs:
         env:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
         run: stage1/build_mesa.sh "${{ inputs.mesa_tag }}" "$GITHUB_WORKSPACE/out"
+
+      - name: Push logs to ci-logs branch (so they can be read without blob access)
+        if: always()
+        run: |
+          mkdir -p /tmp/ci && cd /tmp/ci && rm -rf r && git init -q r && cd r
+          git config user.name "ci"; git config user.email "ci@example.invalid"
+          mkdir -p logs
+          for f in "$GITHUB_WORKSPACE"/out/*.log "$GITHUB_WORKSPACE"/out/*.txt; do [ -f "$f" ] && tail -n 300 "$f" > "logs/$(basename "$f")"; done
+          [ -f "$GITHUB_WORKSPACE/work/build/meson-logs/meson-log.txt" ] && tail -n 300 "$GITHUB_WORKSPACE/work/build/meson-logs/meson-log.txt" > logs/meson-log.txt
+          echo "run ${{ github.run_id }} mesa=${{ inputs.mesa_tag }} ndk=${{ inputs.ndk }}" > logs/RUN.txt
+          git add -A; git commit -q -m "logs for run ${{ github.run_id }}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:refs/heads/ci-logs
 
       - name: Upload .so files
         if: always()
