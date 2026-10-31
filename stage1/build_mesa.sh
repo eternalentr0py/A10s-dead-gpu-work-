@@ -12,9 +12,28 @@ WORK="${WORK:-$PWD/work}"
 PREFIX="$WORK/prefix"
 mkdir -p "$WORK" "$OUT" "$PREFIX"
 
+# pkg-config wrapper that ONLY sees target (ARM) .pc files, never the x86 host ones
+SYSROOT="$TC/sysroot"
+mkdir -p "$PREFIX/lib/pkgconfig"
+cat > "$WORK/pkg-config-cross" <<PKGEOF
+#!/bin/sh
+export PKG_CONFIG_LIBDIR="$PREFIX/lib/pkgconfig"
+unset PKG_CONFIG_PATH
+exec pkg-config "\$@"
+PKGEOF
+chmod +x "$WORK/pkg-config-cross"
+# zlib ships in the NDK sysroot (libz.so + zlib.h)
+cat > "$PREFIX/lib/pkgconfig/zlib.pc" <<ZEOF
+Name: zlib
+Description: zlib (NDK sysroot)
+Version: 1.2.12
+Libs: -lz
+Cflags:
+ZEOF
+
 mkcross() { # $1 = meson host system name
   sed -e "s#@TC@#$TC#g" -e "s#@API@#$API#g" -e "s#@SYSTEM@#$1#g" \
-      -e "s#@PKGPATH@#$PREFIX/lib/pkgconfig#g" "$HERE/android-armv7.cross.in" > "$WORK/cross-$1.txt"
+      -e "s#@PKGCFG@#$WORK/pkg-config-cross#g" "$HERE/android-armv7.cross.in" > "$WORK/cross-$1.txt"
 }
 mkcross linux; mkcross android
 
