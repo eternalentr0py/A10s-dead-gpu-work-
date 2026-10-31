@@ -40,6 +40,15 @@ jobs:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
         run: stage1/build_mesa.sh "${{ inputs.mesa_tag }}" "$GITHUB_WORKSPACE/out"
 
+      - name: Build egltest and package test bundle
+        env:
+          ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+        run: |
+          TC="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          "$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -o out/egltest tools/egltest.c -ldl 2>&1 | tee out/egltest-build.log
+          cp tools/run_egltest.sh out/
+          cd out && zip -qr softgfx-test-bundle.zip vendor_root egltest run_egltest.sh && ls -l softgfx-test-bundle.zip
+
       - name: Push logs to ci-logs branch (so they can be read without blob access)
         if: always()
         run: |
@@ -59,6 +68,9 @@ jobs:
           name: softgfx-stage1-armv7
           path: |
             out/vendor_root/
+            out/egltest
+            out/run_egltest.sh
+            out/softgfx-test-bundle.zip
             out/*.log
             out/*.txt
           if-no-files-found: warn
