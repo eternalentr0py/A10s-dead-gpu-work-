@@ -52,12 +52,13 @@ jobs:
           patchelf --set-soname libEGL_mesa_real.so "$D/egl/libEGL_mesa_real.so"
           rm -f "$D/egl/libGLESv2_soft.so"
           # shim
-          "$CXX" -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -Wall -Wno-misleading-indentation \
-            -Wl,-soname,libEGL_soft.so -Wl,--build-id=none -static-libstdc++ \
-            -o "$D/egl/libEGL_soft.so" stage2/eglshim/egl_shim.cpp -llog -lnativewindow -ldl 2>&1 | tee out/shim-build.log
-          # GLES2 stub (only the two intercepted entry points; links to the shim)
-          "$CXX" -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -Wl,-soname,libGLESv2_soft.so -Wl,--build-id=none \
-            -o "$D/egl/libGLESv2_soft.so" stage2/eglshim/gles2_stub.cpp -L"$D/egl" -l:libEGL_soft.so 2>&1 | tee -a out/shim-build.log
+          "$CXX" -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -Wall -Wno-misleading-indentation \          path: |
+            out/softgfx-installer.zip
+            out/softgfx-uninstaller.zip
+            out/softgfx-test-bundle.zip
+          # GLES2 stub: plain C, only the two intercepted entry points; links to the shim
+          "$CC" -O2 -fPIC -shared -fvisibility=hidden -Wl,-soname,libGLESv2_soft.so -Wl,--build-id=none \
+            -o "$D/egl/libGLESv2_soft.so" stage2/eglshim/gles2_stub.c -L"$D/egl" -l:libEGL_soft.so 2>&1 | tee -a out/shim-build.log
           "$TC/llvm-strip" --strip-unneeded "$D/egl/libEGL_soft.so" "$D/egl/libGLESv2_soft.so"
           # egltest (dynamic; dlopens the libs by path)
           "$CC" -O2 -Wall -o out/egltest tools/egltest.c -ldl 2>&1 | tee out/egltest-build.log
@@ -69,6 +70,23 @@ jobs:
           (cd out/bundle && zip -qr -X ../softgfx-test-bundle.zip egltest run_test.sh vendor_root)
           unzip -l out/softgfx-test-bundle.zip
           for f in "$D"/egl/*.so; do echo "# $f"; "$TC/llvm-readelf" -d "$f" | grep -E "SONAME|NEEDED"; done > out/elf-report-final.txt
+
+      - name: Package TWRP installer and uninstaller
+        run: |
+          VER="softgfx $(date -u +%Y-%m-%d) ${GITHUB_SHA::7}"
+          for MODE in install uninstall; do
+            R="out/pkg-$MODE"; rm -rf "$R"; mkdir -p "$R/META-INF/com/google/android"
+            sed -e "s/@MODE@/$MODE/g" -e "s/@VERSION@/$VER/g" installer/update-binary.in > "$R/META-INF/com/google/android/update-binary"
+            cp installer/updater-script "$R/META-INF/com/google/android/updater-script"
+            if [ "$MODE" = install ]; then mkdir -p "$R/files"; cp -r out/vendor_root/vendor "$R/files/vendor"; fi
+            chmod 755 "$R/META-INF/com/google/android/update-binary"
+            (cd "$R" && zip -qr -X "../softgfx-$MODE" .)
+          done
+          mv out/softgfx-install.zip out/softgfx-installer.zip; mv out/softgfx-uninstall.zip out/softgfx-uninstaller.zip
+          unzip -l out/softgfx-installer.zip
+          # sanity: every NEEDED lib of our libs is either shipped or a platform lib
+          cd out/vendor_root/vendor/lib/egl && for f in *.so; do readelf -d "$f" 2>/dev/null | grep NEEDED | sed 's/.*\[\(.*\)\]/\1/' ; done | sort -u > ../../../../needed.txt
+          echo "needed libs:"; cat ../../../../needed.txt
 
       - name: Push logs to ci-logs branch (so they can be read without blob access)
         if: always()

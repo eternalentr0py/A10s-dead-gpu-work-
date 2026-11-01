@@ -1,0 +1,112 @@
+#!/sbin/sh
+# softgfx TWRP installer/uninstaller  (MODE=@MODE@)   build: @VERSION@
+# Installs the software EGL/GLES stack into /vendor/lib/egl and points ro.hardware.egl at it.
+# Backs up what it changes to /cache/softgfx_backup so the uninstaller can restore it.
+OUTFD=$2
+ZIPFILE=$3
+MODE=@MODE@
+V="${SOFTGFX_VENDOR:-/vendor}"
+BK="${SOFTGFX_BACKUP:-/cache/softgfx_backup}"
+W="${SOFTGFX_WORK:-/tmp/softgfx_inst}"
+LIBDIR="$V/lib/egl"
+FILES="libEGL_soft.so libEGL_mesa_real.so libGLESv1_CM_soft.so libGLESv2_soft.so libglapi_soft.so libdrm_soft.so swrast_dri.so"
+OPENGLES_VER=196609          # GLES 3.1 (what Mesa softpipe provides); stock value is 196610 (3.2)
+
+ui_print() {
+  if [ -n "$OUTFD" ] && [ -e "/proc/self/fd/$OUTFD" ]; then
+    echo "ui_print $1" > "/proc/self/fd/$OUTFD"; echo "ui_print" > "/proc/self/fd/$OUTFD"
+  else
+    echo "$1"
+  fi
+}
+die() { ui_print " "; ui_print "ERROR: $1"; ui_print "Nothing further was changed."; exit 1; }
+
+ui_print "=============================================="
+ui_print " A10s software graphics ($MODE)"
+ui_print " @VERSION@"
+ui_print "=============================================="
+
+# ---- mount /vendor read-write ----
+if [ -z "$SOFTGFX_TEST" ]; then
+  if ! grep -q " $V " /proc/mounts 2>/dev/null; then
+    mkdir -p "$V"
+    for d in /dev/block/platform/bootdevice/by-name/vendor /dev/block/by-name/vendor /dev/block/mmcblk0p33; do
+      if [ -e "$d" ]; then mount -t ext4 -o rw "$d" "$V" 2>/dev/null && break; fi
+    done
+  fi
+  mount -o remount,rw "$V" 2>/dev/null
+  mkdir -p /cache 2>/dev/null
+  grep -q " /cache " /proc/mounts 2>/dev/null || mount -t ext4 -o rw /dev/block/platform/bootdevice/by-name/cache /cache 2>/dev/null || mount -t ext4 -o rw /dev/block/mmcblk0p37 /cache 2>/dev/null
+fi
+[ -d "$V/lib" ] || die "/vendor is not mounted (no $V/lib)."
+touch "$V/.softgfx_w" 2>/dev/null && rm -f "$V/.softgfx_w" || die "/vendor is read-only."
+[ -f "$V/build.prop" ] || die "$V/build.prop not found."
+mkdir -p "$BK" 2>/dev/null || die "cannot create backup folder $BK (is /cache mounted?)."
+
+setprop_file() {   # $1=file $2=key $3=value   (replace the line if present, else append)
+  f="$1"; k="$2"; v="$3"
+  if grep -q "^$k=" "$f"; then
+    sed -i "s|^$k=.*|$k=$v|" "$f"
+  else
+    [ -n "$(tail -c1 "$f" 2>/dev/null)" ] && echo >> "$f"
+    echo "$k=$v" >> "$f"
+  fi
+}
+
+label() {  # best effort SELinux label (new files normally inherit the folder's label anyway)
+  for c in "chcon" "toybox chcon" "busybox chcon"; do
+    $c u:object_r:same_process_hal_file:s0 "$1" 2>/dev/null && return 0
+  done
+  return 1
+}
+
+if [ "$MODE" = "install" ]; then
+  rm -rf "$W"; mkdir -p "$W"
+  ui_print "- extracting"
+  unzip -o "$ZIPFILE" 'files/*' -d "$W" >/dev/null 2>&1 || die "cannot extract the zip."
+  SRC="$W/files/vendor/lib/egl"
+  for f in $FILES; do [ -f "$SRC/$f" ] || die "zip is missing $f"; done
+
+  need=$(du -sk "$SRC" | cut -f1)
+  avail=$(df -k "$V" | awk 'NR>1{a=$(NF-2)} END{print a}')
+  ui_print "- /vendor free space: ${avail:-?} KB, needed: $need KB"
+  if [ -n "$avail" ] && [ "$avail" -lt $((need + 1024)) ] 2>/dev/null; then
+    die "not enough free space on /vendor."
+  fi
+
+  ui_print "- backing up to $BK"
+  [ -f "$BK/build.prop.orig" ] || cp -p "$V/build.prop" "$BK/build.prop.orig"
+  ( cd "$LIBDIR" 2>/dev/null && ls $FILES 2>/dev/null ) > "$BK/pre-existing.txt"   # files that already existed (should be empty)
+
+  ui_print "- installing libraries to $LIBDIR"
+  mkdir -p "$LIBDIR"
+  for f in $FILES; do
+    cp "$SRC/$f" "$LIBDIR/$f" || die "copy of $f failed."
+    chmod 644 "$LIBDIR/$f"; chown 0:0 "$LIBDIR/$f" 2>/dev/null
+    label "$LIBDIR/$f" || SELABEL_FAIL=1
+  done
+  [ -n "$SELABEL_FAIL" ] && ui_print "  (note: could not set SELinux label explicitly; relying on the folder's label)"
+
+  ui_print "- updating $V/build.prop"
+  setprop_file "$V/build.prop" ro.hardware.egl soft
+  setprop_file "$V/build.prop" ro.opengles.version "$OPENGLES_VER"
+  ui_print "  $(grep '^ro.hardware.egl=' "$V/build.prop")"
+  ui_print "  $(grep '^ro.opengles.version=' "$V/build.prop")"
+
+  echo "$FILES" > "$BK/installed-files.txt"
+  sync
+  ui_print " "
+  ui_print "Done. Reboot to system."
+  ui_print "To undo: flash softgfx-uninstaller.zip"
+else
+  ui_print "- removing libraries"
+  for f in $FILES; do rm -f "$LIBDIR/$f"; done
+  if [ -f "$BK/build.prop.orig" ]; then
+    cp "$BK/build.prop.orig" "$V/build.prop" && ui_print "- restored original build.prop"
+  else
+    ui_print "- no backup of build.prop found; leaving it as is (check ro.hardware.egl)"
+  fi
+  sync
+  ui_print "Done. Stock libraries untouched."
+fi
+exit 0

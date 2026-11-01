@@ -63,7 +63,7 @@ COMMON=(
   -Dglx=disabled -Dgbm=disabled -Degl-native-platform=android
   -Dgallium-drivers=swrast -Dvulkan-drivers= -Ddri-drivers=
   -Dllvm=disabled -Dshared-glapi=enabled -Dglvnd=false
-  -Degl-lib-suffix=_soft -Ddri-search-path=/vendor/lib/dri
+  -Degl-lib-suffix=_soft -Ddri-search-path=/vendor/lib/egl
   -Dlmsensors=disabled -Dlibunwind=disabled -Dvalgrind=disabled
   -Dbuild-tests=false -Dshader-cache=disabled -Dzstd=disabled
   -Dosmesa=false -Dgallium-xa=disabled -Dgallium-nine=false -Dgallium-opencl=disabled
@@ -93,15 +93,15 @@ DESTDIR="$WORK/stage" ninja -C "$WORK/build" install >/dev/null
 find "$WORK/stage" \( -name '*.so' -o -name '*.so.*' \) -print | tee "$OUT/installed-files.txt"
 # ---- Package into a device layout (/vendor/lib/...), isolate names from stock libs ----
 L="$WORK/stage/usr/local/lib"
-D="$OUT/vendor_root/vendor/lib"; mkdir -p "$D/egl" "$D/dri"
+D="$OUT/vendor_root/vendor/lib"; mkdir -p "$D/egl"
 cp -v "$L/libEGL_soft.so.1.0.0"       "$D/egl/libEGL_soft.so"
 cp -v "$L/libGLESv1_CM.so.1.1.0"      "$D/egl/libGLESv1_CM_soft.so"
 cp -v "$L/libGLESv2.so.2.0.0"         "$D/egl/libGLESv2_soft.so"
-cp -v "$L/libglapi.so.0.0.0"          "$D/libglapi_soft.so"
-cp -v "$L/dri/swrast_dri.so"          "$D/dri/swrast_dri.so"
-cp -v "$PREFIX/lib/libdrm.so"         "$D/libdrm_soft.so"
+cp -v "$L/libglapi.so.0.0.0"          "$D/egl/libglapi_soft.so"
+cp -v "$L/dri/swrast_dri.so"          "$D/egl/swrast_dri.so"
+cp -v "$PREFIX/lib/libdrm.so"         "$D/egl/libdrm_soft.so"
 PE=patchelf
-for f in "$D"/egl/*.so "$D"/libglapi_soft.so "$D"/dri/swrast_dri.so "$D"/libdrm_soft.so; do
+for f in "$D"/egl/*.so; do
   case "$f" in *libglapi_soft.so) $PE --set-soname libglapi_soft.so "$f";; *libdrm_soft.so) $PE --set-soname libdrm_soft.so "$f";; esac
   $PE --replace-needed libglapi.so.0 libglapi_soft.so "$f" 2>/dev/null || true
   $PE --replace-needed libdrm.so libdrm_soft.so "$f" 2>/dev/null || true
