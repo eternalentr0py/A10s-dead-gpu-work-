@@ -46,10 +46,10 @@ jobs:
         run: |
           TC="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
           # Static build: no /system/bin/linker needed, runs directly in TWRP
-"$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -static -o out/egltest_static tools/egltest.c 2>&1 | tee out/egltest-build-static.log || true
-# Dynamic build kept as fallback
-"$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -o out/egltest tools/egltest.c -ldl 2>&1 | tee out/egltest-build.log
-cp out/egltest_static out/egltest 2>/dev/null || true
+          "$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -static -o out/egltest_static tools/egltest.c 2>&1 | tee out/egltest-build-static.log || true
+          # Dynamic build kept as fallback
+          "$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -o out/egltest tools/egltest.c -ldl 2>&1 | tee out/egltest-build.log
+          cp out/egltest_static out/egltest 2>/dev/null || true
           cp tools/run_egltest.sh out/
           cd out && zip -qr softgfx-test-bundle.zip vendor_root egltest run_egltest.sh && ls -l softgfx-test-bundle.zip
 
