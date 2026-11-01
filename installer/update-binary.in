@@ -63,8 +63,14 @@ label() {  # best effort SELinux label (new files normally inherit the folder's 
 if [ "$MODE" = "install" ]; then
   rm -rf "$W"; mkdir -p "$W"
   ui_print "- extracting"
-  unzip -o "$ZIPFILE" 'files/*' -d "$W" >/dev/null 2>&1 || die "cannot extract the zip."
-  SRC="$W/files/vendor/lib/egl"
+  # extract everything (TWRP's unzip does not expand wildcards), then locate the files by search
+  unzip -o "$ZIPFILE" -d "$W" >/dev/null 2>&1 || busybox unzip -o "$ZIPFILE" -d "$W" >/dev/null 2>&1 || die "cannot extract the zip."
+  FOUND=$(find "$W" -name libEGL_soft.so 2>/dev/null | head -n 1)
+  if [ -z "$FOUND" ]; then
+    ui_print "  extracted layout:"; find "$W" -type f 2>/dev/null | head -n 20 | while read -r l; do ui_print "   $l"; done
+    die "libEGL_soft.so not found after extracting the zip."
+  fi
+  SRC=$(dirname "$FOUND")
   for f in $FILES; do [ -f "$SRC/$f" ] || die "zip is missing $f"; done
 
   need=$(du -sk "$SRC" | cut -f1)
