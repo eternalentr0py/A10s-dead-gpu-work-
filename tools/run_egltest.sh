@@ -15,12 +15,19 @@ export GALLIUM_DRIVER=softpipe
 export EGL_LOG_LEVEL=debug
 export LIBGL_DEBUG=verbose
 OUT="${2:-$D/egltest_result.txt}"
+# Prefer static binary (no linker/system mount needed); fall back to dynamic.
+if [ -x "$D/egltest_static" ]; then
+  EGLTEST="$D/egltest_static"
+  echo "using static egltest" >> "$OUT"
+else
+  EGLTEST="$D/egltest"
+fi
 # egltest's ELF interpreter is /system/bin/linker; recovery may not have it unless system is mounted.
 LNK=""
 if [ ! -e /system/bin/linker ]; then
   for c in /system_root/system/bin/linker /apex/com.android.runtime/bin/linker; do [ -e "$c" ] && LNK="$c" && break; done
   [ -z "$LNK" ] && echo "WARNING: no linker found; mount System in TWRP (Mount menu) first" >> "$OUT"
 fi
-$LNK "$D/egltest" "$V/egl/libEGL_soft.so" "$V/egl/libGLESv2_soft.so" >> "$OUT" 2>&1
+$LNK "$EGLTEST" "$V/egl/libEGL_soft.so" "$V/egl/libGLESv2_soft.so" >> "$OUT" 2>&1
 echo "exit=$?" >> "$OUT"
 echo "wrote $OUT"; tail -n 5 "$OUT"
