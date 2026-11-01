@@ -52,10 +52,9 @@ jobs:
           patchelf --set-soname libEGL_mesa_real.so "$D/egl/libEGL_mesa_real.so"
           rm -f "$D/egl/libGLESv2_soft.so"
           # shim
-          "$CXX" -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -Wall -Wno-misleading-indentation \          path: |
-            out/softgfx-installer.zip
-            out/softgfx-uninstaller.zip
-            out/softgfx-test-bundle.zip
+          "$CXX" -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -Wall -Wno-misleading-indentation \
+            -Wl,-soname,libEGL_soft.so -Wl,--build-id=none -static-libstdc++ \
+            -o "$D/egl/libEGL_soft.so" stage2/eglshim/egl_shim.cpp -llog -lnativewindow -ldl 2>&1 | tee out/shim-build.log
           # GLES2 stub: plain C, only the two intercepted entry points; links to the shim
           "$CC" -O2 -fPIC -shared -fvisibility=hidden -Wl,-soname,libGLESv2_soft.so -Wl,--build-id=none \
             -o "$D/egl/libGLESv2_soft.so" stage2/eglshim/gles2_stub.c -L"$D/egl" -l:libEGL_soft.so 2>&1 | tee -a out/shim-build.log
