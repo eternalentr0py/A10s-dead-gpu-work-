@@ -55,3 +55,14 @@
   (no GPU needed for plain buffer allocation) -> add the software EGL shim (`ro.hardware.egl=soft`). Needs: boot.img.
 - **Route A (fallback):** replace gralloc (use legacy `gralloc.default` via gralloc 2.0/2.1 passthrough) and drop
   `hwcomposer.mt6765.so` so composer falls back to fb0. More components, needs HIDL headers (VNDK v30).
+
+## Kernel analysis (boot.img dump, boot header v2, arm64 gzip Image, 27,011,072 bytes decompressed)
+- PowerVR Rogue driver is built into the kernel. Image offsets (= vaddr - base):
+  - `PVRSRVPollForValueKM(dev, addr, value, mask, flags)` @ 0x59e1f4: spins on `*addr & mask == value`, 5 s budget (0x4c4b40 us), returns 9 on timeout
+  - `RGXPostPowerState` calls it @ 0x57bba4 with (value=1, mask=-1, flags=3) on the FW "started" flag (fw struct +0x84); on failure it logs and returns 9
+  - 10 call sites in total (3 are generic PMR/memory pollers at 0x563c78/0x563cfc/0x563d20)
+- Other firmware-dependent steps exist after "FW started" (e.g. RGXDevInitCompatCheck compares FW-reported BVNC/DDK; KCCB command
+  completion). A patch of the FW-started wait alone may only move the failure; hence two patch variants (`tools/patch_pvr_boot.py`).
+- Kernel recompressed with zopfli (11,258,19x bytes < original 11,648,764), zero padded to the original kernel_size; header id recomputed
+  (formula verified against the original); AVB footer untouched. Original gzip was `gzip -9 -n`.
+- ramoops/pstore is configured on the cmdline, so after a failed boot `/sys/fs/pstore/console-ramoops*` may hold the kernel log.
