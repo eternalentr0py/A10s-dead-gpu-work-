@@ -40,32 +40,35 @@ jobs:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
         run: stage1/build_mesa.sh "${{ inputs.mesa_tag }}" "$GITHUB_WORKSPACE/out"
 
-      - name: Build egltest and package test bundle
+      - name: Build EGL shim, GLES stub, egltest; package flat test bundle
         env:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
         run: |
           TC="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
-          # Static build with musl-libc so the binary has no ELF interpreter at all.
-          # The NDK static libc is Bionic which still embeds /system/bin/linker as interpreter
-          # even for -static, so we need to clear it with patchelf after linking.
-          "$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -static -o out/egltest_static tools/egltest.c -ldl 2>&1 | tee out/egltest-build-static.log || true
-          # Strip the PT_INTERP entry so the kernel loads it directly (no linker needed)
-          patchelf --set-interpreter "" out/egltest_static 2>/dev/null || true
-          # Verify: should print nothing or "no interpreter"
-          readelf -l out/egltest_static | grep -E "INTERP|interpreter" || echo "no interpreter - good"
-          readelf -l out/egltest_static | grep "INTERP" && echo "WARNING: interpreter still present" || true
-          # Dynamic build: real fallback for run_egltest.sh's static/dynamic preference check,
-          # not a duplicate of the static binary - needs /system/bin/linker present on-device.
-          "$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -o out/egltest tools/egltest.c -ldl 2>&1 | tee out/egltest-build.log
-          # Clean test bundle: only what you need on the phone. Ship both binaries under the
-          # names run_egltest.sh actually looks for (it prefers egltest_static, falls back to
-          # egltest if the static one isn't present/executable).
+          CXX="$TC/armv7a-linux-androideabi30-clang++"; CC="$TC/armv7a-linux-androideabi30-clang"
+          D="$GITHUB_WORKSPACE/out/vendor_root/vendor/lib"
+          # Mesa's own EGL becomes the "real" backend; our shim takes the libEGL_soft.so name
+          mv "$D/egl/libEGL_soft.so" "$D/egl/libEGL_mesa_real.so"
+          patchelf --set-soname libEGL_mesa_real.so "$D/egl/libEGL_mesa_real.so"
+          rm -f "$D/egl/libGLESv2_soft.so"
+          # shim
+          "$CXX" -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -Wall -Wno-misleading-indentation \
+            -Wl,-soname,libEGL_soft.so -Wl,--build-id=none -static-libstdc++ \
+            -o "$D/egl/libEGL_soft.so" stage2/eglshim/egl_shim.cpp -llog -lnativewindow -ldl 2>&1 | tee out/shim-build.log
+          # GLES2 stub (only the two intercepted entry points; links to the shim)
+          "$CXX" -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -Wl,-soname,libGLESv2_soft.so -Wl,--build-id=none \
+            -o "$D/egl/libGLESv2_soft.so" stage2/eglshim/gles2_stub.cpp -L"$D/egl" -l:libEGL_soft.so 2>&1 | tee -a out/shim-build.log
+          "$TC/llvm-strip" --strip-unneeded "$D/egl/libEGL_soft.so" "$D/egl/libGLESv2_soft.so"
+          # egltest (dynamic; dlopens the libs by path)
+          "$CC" -O2 -Wall -o out/egltest tools/egltest.c -ldl 2>&1 | tee out/egltest-build.log
+          # flat bundle: push its CONTENTS straight into /tmp/softgfx
           mkdir -p out/bundle
-          cp out/egltest_static      out/bundle/egltest_static
-          cp out/egltest             out/bundle/egltest
-          cp tools/run_egltest.sh    out/bundle/run_egltest.sh
-          cp -r out/vendor_root      out/bundle/vendor_root
-          cd out && zip -qr softgfx-test-bundle.zip bundle/ && echo "bundle contents:" && unzip -l softgfx-test-bundle.zip
+          cp out/egltest tools/run_test.sh out/bundle/
+          cp -r out/vendor_root out/bundle/vendor_root
+          chmod 755 out/bundle/egltest out/bundle/run_test.sh
+          (cd out/bundle && zip -qr -X ../softgfx-test-bundle.zip egltest run_test.sh vendor_root)
+          unzip -l out/softgfx-test-bundle.zip
+          for f in "$D"/egl/*.so; do echo "# $f"; "$TC/llvm-readelf" -d "$f" | grep -E "SONAME|NEEDED"; done > out/elf-report-final.txt
 
       - name: Push logs to ci-logs branch (so they can be read without blob access)
         if: always()
@@ -86,9 +89,7 @@ jobs:
           name: softgfx-stage1-armv7
           path: |
             out/softgfx-test-bundle.zip
-            out/elf-report.txt
-            out/*.log
-            out/*.txt
+            out/elf-report-final.txt
           if-no-files-found: warn
 
       - name: Publish logs to ci-logs branch (readable without artifact download)
