@@ -45,11 +45,18 @@ jobs:
           ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
         run: |
           TC="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
-          # Static build: no /system/bin/linker needed, runs directly in TWRP
+          # Static build with musl-libc so the binary has no ELF interpreter at all.
+          # The NDK static libc is Bionic which still embeds /system/bin/linker as interpreter
+          # even for -static, so we need to clear it with patchelf after linking.
           "$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -static -o out/egltest_static tools/egltest.c 2>&1 | tee out/egltest-build-static.log || true
-          # Dynamic build kept as fallback
+          # Strip the PT_INTERP entry so the kernel loads it directly (no linker needed)
+          patchelf --set-interpreter "" out/egltest_static 2>/dev/null || true
+          # Verify: should print nothing or "no interpreter"
+          readelf -l out/egltest_static | grep -E "INTERP|interpreter" || echo "no interpreter - good"
+          readelf -l out/egltest_static | grep "INTERP" && echo "WARNING: interpreter still present" || true
+          # Dynamic build kept as reference
           "$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -o out/egltest tools/egltest.c -ldl 2>&1 | tee out/egltest-build.log
-          cp out/egltest_static out/egltest 2>/dev/null || true
+          cp out/egltest_static out/bundle/egltest 2>/dev/null || true
           # Clean test bundle: only what you need on the phone
           mkdir -p out/bundle
           cp out/egltest_static      out/bundle/egltest
