@@ -34,3 +34,24 @@
 ## What the dump does NOT contain
 - The dmesg is from **recovery**, so it has no PVR driver messages. Evidence of the real failure is missing.
   Run `tools/collect_boot_diag.sh` in TWRP after a failed normal boot to capture it (pstore / last_kmsg).
+
+## Findings from diag_bundle (taken in TWRP)
+- Real-boot failure (user-pasted kernel log): `PVRSRVPollForValueKM: Failed! Error(PVRSRV_ERROR_TIMEOUT)` ->
+  `RGXPostPowerState: Polling for 'FW started' flag failed` -> `PVRSRVDeviceFinalise: Failed to set device power
+  state to 'on'` -> `PVRSRVDeviceOpen: ... Driver already in bad state`. i.e. the GPU firmware never reports
+  started; every later PVR client (gralloc allocator, EGL, ...) is refused.
+- pstore/last_kmsg were empty (no logs from the failed boot survive).
+- TWRP cmdline: `androidboot.vbmeta.device_state=unlocked`, `verifiedbootstate=green`, `veritymode=enforcing`,
+  `dm="1 vroot ... verity ..."` (system), fstab uses `avb` for vendor/product, `androidboot.selinux=permissive`
+  (may be TWRP-only), ramoops/pstore configured.
+- Services: `vendor.gralloc-4-0` (allocator 4.0, PVR) and `vendor.hwcomposer-2-1` both have `onrestart restart surfaceflinger`;
+  surfaceflinger has `onrestart restart zygote`. `gralloc.default.so` needs only liblog/libcutils/libc++ (GPU-free).
+- `/vendor/build.prop` has `ro.hardware.egl=meow` (stock would be `mtk`): /vendor was edited before.
+- vendor manifest declares allocator 4.0, mapper 4.0 (passthrough), composer 2.1.
+
+## Revised plan (two routes)
+- **Route B (preferred, smallest change):** patch the PowerVR kernel driver in boot.img so the FW-wait helper
+  `PVRSRVPollForValueKM` returns success immediately -> driver stays "OK", stock gralloc 4.0 / HWC keep working
+  (no GPU needed for plain buffer allocation) -> add the software EGL shim (`ro.hardware.egl=soft`). Needs: boot.img.
+- **Route A (fallback):** replace gralloc (use legacy `gralloc.default` via gralloc 2.0/2.1 passthrough) and drop
+  `hwcomposer.mt6765.so` so composer falls back to fb0. More components, needs HIDL headers (VNDK v30).
