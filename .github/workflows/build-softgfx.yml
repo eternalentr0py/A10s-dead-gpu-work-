@@ -106,8 +106,9 @@ jobs:
         with:
           name: softgfx-stage1-armv7
           path: |
+            out/softgfx-installer.zip
+            out/softgfx-uninstaller.zip
             out/softgfx-test-bundle.zip
-            out/elf-report-final.txt
           if-no-files-found: warn
 
       - name: Publish logs to ci-logs branch (readable without artifact download)
