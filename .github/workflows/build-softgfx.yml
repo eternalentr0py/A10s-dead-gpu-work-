@@ -48,7 +48,7 @@ jobs:
           # Static build with musl-libc so the binary has no ELF interpreter at all.
           # The NDK static libc is Bionic which still embeds /system/bin/linker as interpreter
           # even for -static, so we need to clear it with patchelf after linking.
-          "$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -static -o out/egltest_static tools/egltest.c 2>&1 | tee out/egltest-build-static.log || true
+          "$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -static -o out/egltest_static tools/egltest.c -ldl 2>&1 | tee out/egltest-build-static.log || true
           # Strip the PT_INTERP entry so the kernel loads it directly (no linker needed)
           patchelf --set-interpreter "" out/egltest_static 2>/dev/null || true
           # Verify: should print nothing or "no interpreter"
