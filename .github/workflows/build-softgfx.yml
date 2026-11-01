@@ -54,12 +54,15 @@ jobs:
           # Verify: should print nothing or "no interpreter"
           readelf -l out/egltest_static | grep -E "INTERP|interpreter" || echo "no interpreter - good"
           readelf -l out/egltest_static | grep "INTERP" && echo "WARNING: interpreter still present" || true
-          # Dynamic build kept as reference
+          # Dynamic build: real fallback for run_egltest.sh's static/dynamic preference check,
+          # not a duplicate of the static binary - needs /system/bin/linker present on-device.
           "$TC/armv7a-linux-androideabi30-clang" -O2 -Wall -o out/egltest tools/egltest.c -ldl 2>&1 | tee out/egltest-build.log
-          cp out/egltest_static out/bundle/egltest 2>/dev/null || true
-          # Clean test bundle: only what you need on the phone
+          # Clean test bundle: only what you need on the phone. Ship both binaries under the
+          # names run_egltest.sh actually looks for (it prefers egltest_static, falls back to
+          # egltest if the static one isn't present/executable).
           mkdir -p out/bundle
-          cp out/egltest_static      out/bundle/egltest
+          cp out/egltest_static      out/bundle/egltest_static
+          cp out/egltest             out/bundle/egltest
           cp tools/run_egltest.sh    out/bundle/run_egltest.sh
           cp -r out/vendor_root      out/bundle/vendor_root
           cd out && zip -qr softgfx-test-bundle.zip bundle/ && echo "bundle contents:" && unzip -l softgfx-test-bundle.zip
