@@ -95,6 +95,25 @@ jobs:
           done
           mv out/softgfx-install.zip out/softgfx-installer.zip; mv out/softgfx-uninstall.zip out/softgfx-uninstaller.zip
           unzip -l out/softgfx-installer.zip
+
+          # Isolated diagnostic zip: boot checkpoints ONLY (no EGL/HWC/GPU-service/gralloc
+          # changes), so we can tell apart "checkpoints don't work at all" from "one of the
+          # other softgfx changes crashes boot earlier than stock".
+          for MODE in install uninstall; do
+            R="out/pkg-diag-$MODE"; rm -rf "$R"; mkdir -p "$R/META-INF/com/google/android"
+            sed -e "s/@MODE@/$MODE/g" -e "s/@VERSION@/$VER/g" installer/update-binary-diag.in > "$R/META-INF/com/google/android/update-binary"
+            cp installer/updater-script "$R/META-INF/com/google/android/updater-script"
+            if [ "$MODE" = install ]; then
+              mkdir -p "$R/files/vendor/bin" "$R/files/vendor/etc/init"
+              cp out/boot_checkpoint "$R/files/vendor/bin/softgfx_checkpoint"; chmod 755 "$R/files/vendor/bin/softgfx_checkpoint"
+              cp installer/softgfx_checkpoints.rc "$R/files/vendor/etc/init/softgfx_checkpoints.rc"
+            fi
+            chmod 755 "$R/META-INF/com/google/android/update-binary"
+            (cd "$R" && zip -qr -X "../softgfx-diag-checkpoints-$MODE" .)
+          done
+          mv out/softgfx-diag-checkpoints-install.zip out/softgfx-diag-checkpoints-installer.zip
+          mv out/softgfx-diag-checkpoints-uninstall.zip out/softgfx-diag-checkpoints-uninstaller.zip
+          unzip -l out/softgfx-diag-checkpoints-installer.zip
           # sanity: every NEEDED lib of our libs is either shipped or a platform lib
           cd out/vendor_root/vendor/lib/egl && for f in *.so; do readelf -d "$f" 2>/dev/null | grep NEEDED | sed 's/.*\[\(.*\)\]/\1/' ; done | sort -u > ../../../../needed.txt
           echo "needed libs:"; cat ../../../../needed.txt
@@ -123,6 +142,8 @@ jobs:
             out/softgfx-installer.zip
             out/softgfx-uninstaller.zip
             out/softgfx-test-bundle.zip
+            out/softgfx-diag-checkpoints-installer.zip
+            out/softgfx-diag-checkpoints-uninstaller.zip
           if-no-files-found: warn
 
       - name: Publish logs to ci-logs branch (readable without artifact download)

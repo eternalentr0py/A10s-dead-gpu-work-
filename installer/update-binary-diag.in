@@ -1,0 +1,63 @@
+#!/sbin/sh
+# softgfx-diag-checkpoints installer/uninstaller  (MODE=@MODE@)   build: @VERSION@
+# Installs ONLY the boot-checkpoint markers (/vendor/bin/softgfx_checkpoint +
+# /vendor/etc/init/softgfx_checkpoints.rc). Does NOT touch EGL, HWC, the GPU service, gralloc,
+# or build.prop at all - this is a minimal, isolated diagnostic build to find out whether the
+# checkpoints work at all in a clean baseline, separately from whether the other softgfx
+# changes are what's causing the device to shut down earlier than stock.
+OUTFD=$2
+ZIPFILE=$3
+MODE=@MODE@
+V="${SOFTGFX_VENDOR:-/vendor}"
+W="${SOFTGFX_WORK:-/tmp/softgfx_diag_inst}"
+
+ui_print() {
+  if [ -n "$OUTFD" ] && [ -e "/proc/self/fd/$OUTFD" ]; then
+    echo "ui_print $1" > "/proc/self/fd/$OUTFD"; echo "ui_print" > "/proc/self/fd/$OUTFD"
+  else
+    echo "$1"
+  fi
+}
+die() { ui_print " "; ui_print "ERROR: $1"; ui_print "Nothing further was changed."; exit 1; }
+
+ui_print "=============================================="
+ui_print " A10s boot-checkpoint diagnostic only ($MODE)"
+ui_print " @VERSION@"
+ui_print " (does NOT touch EGL/HWC/GPU-service/gralloc)"
+ui_print "=============================================="
+
+if [ -z "$SOFTGFX_TEST" ]; then
+  if ! grep -q " $V " /proc/mounts 2>/dev/null; then
+    mkdir -p "$V"
+    for d in /dev/block/platform/bootdevice/by-name/vendor /dev/block/by-name/vendor /dev/block/mmcblk0p33; do
+      [ -e "$d" ] && mount -t ext4 -o rw "$d" "$V" 2>/dev/null && break
+    done
+  fi
+  mount -o remount,rw "$V" 2>/dev/null
+fi
+[ -d "$V/lib" ] || die "/vendor is not mounted (no $V/lib)."
+
+if [ "$MODE" = "install" ]; then
+  rm -rf "$W"; mkdir -p "$W"
+  ui_print "- extracting"
+  unzip -o "$ZIPFILE" -d "$W" >/dev/null 2>&1 || busybox unzip -o "$ZIPFILE" -d "$W" >/dev/null 2>&1 || die "cannot extract the zip."
+  CKBIN=$(find "$W" -name softgfx_checkpoint 2>/dev/null | head -n 1)
+  CKRC=$(find "$W" -name softgfx_checkpoints.rc 2>/dev/null | head -n 1)
+  [ -n "$CKBIN" ] && [ -n "$CKRC" ] || die "softgfx_checkpoint/.rc not found in the zip."
+
+  mkdir -p "$V/bin" "$V/etc/init"
+  cp "$CKBIN" "$V/bin/softgfx_checkpoint" && chmod 755 "$V/bin/softgfx_checkpoint" || die "copy of softgfx_checkpoint failed."
+  cp "$CKRC" "$V/etc/init/softgfx_checkpoints.rc" && chmod 644 "$V/etc/init/softgfx_checkpoints.rc" || die "copy of softgfx_checkpoints.rc failed."
+  sync
+  ui_print " "
+  ui_print "Done. Reboot to system and watch the top-left corner of the screen:"
+  ui_print "  1=red(init alive) 2=orange(post-fs-data) 3=yellow(zygote-start) 4=green(gralloc svc up)"
+  ui_print "  5=cyan(composer svc up) 6=blue(surfaceflinger up) 7=purple(zygote up) 8=white(boot_completed)"
+  ui_print "To undo: flash softgfx-diag-checkpoints-uninstaller.zip"
+else
+  ui_print "- removing boot checkpoints"
+  rm -f "$V/bin/softgfx_checkpoint" "$V/etc/init/softgfx_checkpoints.rc"
+  sync
+  ui_print "Done."
+fi
+exit 0
