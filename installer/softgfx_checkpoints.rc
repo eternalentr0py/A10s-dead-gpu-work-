@@ -1,0 +1,29 @@
+# softgfx boot checkpoints - visual-only boot progress markers, no logs/adb needed.
+# See tools/boot_checkpoint.c for why this exists and what the colors mean.
+# Installed to /vendor/etc/init/ (vendor init rc files are picked up automatically by init;
+# no extra wiring needed beyond the file existing here). Best-effort: if SELinux denies the
+# fb0 write, the binary just fails silently and no box is drawn for that checkpoint - harmless
+# either way, never blocks boot.
+on early-init
+    exec_background - system graphics -- /vendor/bin/softgfx_checkpoint 1
+
+on post-fs-data
+    exec_background - system graphics -- /vendor/bin/softgfx_checkpoint 2
+
+on zygote-start
+    exec_background - system graphics -- /vendor/bin/softgfx_checkpoint 3
+
+on property:init.svc.vendor.gralloc-4-0=running
+    exec_background - system graphics -- /vendor/bin/softgfx_checkpoint 4
+
+on property:init.svc.vendor.hwcomposer-2-1=running
+    exec_background - system graphics -- /vendor/bin/softgfx_checkpoint 5
+
+on property:init.svc.surfaceflinger=running
+    exec_background - system graphics -- /vendor/bin/softgfx_checkpoint 6
+
+on property:init.svc.zygote=running
+    exec_background - system graphics -- /vendor/bin/softgfx_checkpoint 7
+
+on property:sys.boot_completed=1
+    exec_background - system graphics -- /vendor/bin/softgfx_checkpoint 8

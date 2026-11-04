@@ -64,6 +64,9 @@ jobs:
           # fbdev_test: real EGL/GLES render blitted straight to /dev/graphics/fb0 (visible on the
           # TWRP screen without SurfaceFlinger). Used both standalone and as the installer's live test.
           "$CC" -O2 -Wall -o out/fbdev_test tools/fbdev_test.c -ldl 2>&1 | tee out/fbdev_test-build.log
+          # boot_checkpoint: dependency-free fb0 marker, run by init triggers at real-boot milestones
+          # (see tools/boot_checkpoint.c) since adb/logs are not available during the real boot hang.
+          "$CC" -O2 -Wall -o out/boot_checkpoint tools/boot_checkpoint.c 2>&1 | tee out/boot_checkpoint-build.log
           # flat bundle: push its CONTENTS straight into /tmp/softgfx
           mkdir -p out/bundle
           cp out/egltest out/fbdev_test tools/run_test.sh out/bundle/
@@ -83,6 +86,9 @@ jobs:
             if [ "$MODE" = install ]; then
               mkdir -p "$R/files"; cp -r out/vendor_root/vendor "$R/files/vendor"
               mkdir -p "$R/bin"; cp out/fbdev_test "$R/bin/fbdev_test"; chmod 755 "$R/bin/fbdev_test"
+              mkdir -p "$R/files/vendor/bin" "$R/files/vendor/etc/init"
+              cp out/boot_checkpoint "$R/files/vendor/bin/softgfx_checkpoint"; chmod 755 "$R/files/vendor/bin/softgfx_checkpoint"
+              cp installer/softgfx_checkpoints.rc "$R/files/vendor/etc/init/softgfx_checkpoints.rc"
             fi
             chmod 755 "$R/META-INF/com/google/android/update-binary"
             (cd "$R" && zip -qr -X "../softgfx-$MODE" .)

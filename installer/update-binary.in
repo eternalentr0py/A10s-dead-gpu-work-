@@ -148,6 +148,21 @@ if [ "$MODE" = "install" ]; then
     ui_print "  not found at $GPU_SVC_RC (path may differ on this build - check manually)"
   fi
 
+  ui_print "- installing boot checkpoints (fb0 markers at boot milestones - see legend below)"
+  CKBIN=$(find "$W" -name softgfx_checkpoint 2>/dev/null | head -n 1)
+  CKRC=$(find "$W" -name softgfx_checkpoints.rc 2>/dev/null | head -n 1)
+  if [ -n "$CKBIN" ] && [ -n "$CKRC" ]; then
+    mkdir -p "$V/bin" "$V/etc/init"
+    cp "$CKBIN" "$V/bin/softgfx_checkpoint" && chmod 755 "$V/bin/softgfx_checkpoint"
+    cp "$CKRC" "$V/etc/init/softgfx_checkpoints.rc" && chmod 644 "$V/etc/init/softgfx_checkpoints.rc"
+    ui_print "  installed. On the NEXT boot attempt, watch the top-left corner of the screen:"
+    ui_print "  1=red(init alive) 2=orange(post-fs-data) 3=yellow(zygote-start) 4=green(gralloc svc up)"
+    ui_print "  5=cyan(composer svc up) 6=blue(surfaceflinger up) 7=purple(zygote up) 8=white(boot_completed)"
+    ui_print "  Whichever box is the LAST one lit tells us where it's getting stuck."
+  else
+    ui_print "  SKIPPED (softgfx_checkpoint/.rc not found in the zip)"
+  fi
+
   echo "$FILES" > "$BK/installed-files.txt"
   sync
 
@@ -205,6 +220,9 @@ if [ "$MODE" = "install" ]; then
 else
   ui_print "- removing libraries"
   for f in $FILES; do rm -f "$LIBDIR/$f"; done
+
+  ui_print "- removing boot checkpoints"
+  rm -f "$V/bin/softgfx_checkpoint" "$V/etc/init/softgfx_checkpoints.rc"
 
   ui_print "- restoring vendor.mediatek.hardware.gpu@1.0-service"
   if [ -f "$BK/vendor.mediatek.hardware.gpu@1.0-service.rc" ]; then
