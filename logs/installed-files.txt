@@ -1,0 +1,17 @@
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libGLESv2.so
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libGLESv1_CM.so.1
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libEGL_soft.so
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libglapi.so.0.0.0
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libexpat.so.1.6.7
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libEGL_soft.so.1
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libglapi.so.0
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libGLESv2.so.2
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libexpat.so.1
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libexpat.so
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libGLESv2.so.2.0.0
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libEGL_soft.so.1.0.0
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/dri/kms_swrast_dri.so
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/dri/swrast_dri.so
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libglapi.so
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libGLESv1_CM.so
+/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/stage/usr/local/lib/libGLESv1_CM.so.1.1.0

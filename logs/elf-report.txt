@@ -1,0 +1,49 @@
+# /vendor/lib/egl/libdrm_soft.so
+  Class:                             ELF32
+  Machine:                           ARM
+  0x00000001 (NEEDED)       Shared library: [libc.so]
+  0x0000000e (SONAME)       Library soname: [libdrm_soft.so]
+# /vendor/lib/egl/libglapi_soft.so
+  Class:                             ELF32
+  Machine:                           ARM
+  0x00000001 (NEEDED)       Shared library: [libc.so]
+  0x0000000e (SONAME)       Library soname: [libglapi_soft.so]
+# /vendor/lib/egl/libGLESv1_CM_soft.so
+  Class:                             ELF32
+  Machine:                           ARM
+  0x00000001 (NEEDED)       Shared library: [libglapi_soft.so]
+  0x00000001 (NEEDED)       Shared library: [libc.so]
+  0x0000000e (SONAME)       Library soname: [libGLESv1_CM.so.1]
+# /vendor/lib/egl/libEGL_soft.so
+  Class:                             ELF32
+  Machine:                           ARM
+  0x00000001 (NEEDED)       Shared library: [libglapi_soft.so]
+  0x00000001 (NEEDED)       Shared library: [libcutils.so]
+  0x00000001 (NEEDED)       Shared library: [libhardware.so]
+  0x00000001 (NEEDED)       Shared library: [liblog.so]
+  0x00000001 (NEEDED)       Shared library: [libnativewindow.so]
+  0x00000001 (NEEDED)       Shared library: [libsync.so]
+  0x00000001 (NEEDED)       Shared library: [libdrm_soft.so]
+  0x00000001 (NEEDED)       Shared library: [libm.so]
+  0x00000001 (NEEDED)       Shared library: [libdl.so]
+  0x00000001 (NEEDED)       Shared library: [libc.so]
+  0x0000000e (SONAME)       Library soname: [libEGL_soft.so.1]
+# /vendor/lib/egl/libGLESv2_soft.so
+  Class:                             ELF32
+  Machine:                           ARM
+  0x00000001 (NEEDED)       Shared library: [libglapi_soft.so]
+  0x00000001 (NEEDED)       Shared library: [libc.so]
+  0x0000000e (SONAME)       Library soname: [libGLESv2.so.2]
+# /vendor/lib/egl/swrast_dri.so
+  Class:                             ELF32
+  Machine:                           ARM
+  0x00000001 (NEEDED)       Shared library: [libcutils.so]
+  0x00000001 (NEEDED)       Shared library: [liblog.so]
+  0x00000001 (NEEDED)       Shared library: [libsync.so]
+  0x00000001 (NEEDED)       Shared library: [libglapi_soft.so]
+  0x00000001 (NEEDED)       Shared library: [libdrm_soft.so]
+  0x00000001 (NEEDED)       Shared library: [libz.so]
+  0x00000001 (NEEDED)       Shared library: [libm.so]
+  0x00000001 (NEEDED)       Shared library: [libdl.so]
+  0x00000001 (NEEDED)       Shared library: [libc.so]
+  0x0000000e (SONAME)       Library soname: [libgallium_dri.so]

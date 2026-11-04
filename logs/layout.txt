@@ -1,0 +1,6 @@
+-rwxr-xr-x 1 runner runner 75108 Nov  4 11:58 ./vendor/lib/egl/libdrm_soft.so
+-rwxr-xr-x 1 runner runner 211168 Nov  4 11:58 ./vendor/lib/egl/libglapi_soft.so
+-rwxr-xr-x 1 runner runner 19996 Nov  4 11:58 ./vendor/lib/egl/libGLESv1_CM_soft.so
+-rwxr-xr-x 1 runner runner 360044 Nov  4 11:58 ./vendor/lib/egl/libEGL_soft.so
+-rwxr-xr-x 1 runner runner 53328 Nov  4 11:58 ./vendor/lib/egl/libGLESv2_soft.so
+-rwxr-xr-x 1 runner runner 10260560 Nov  4 11:58 ./vendor/lib/egl/swrast_dri.so

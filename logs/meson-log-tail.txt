@@ -1,0 +1,200 @@
+Working directory:  /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmp8xr6saxs
+Code:
+
+        #include <stddef.h>
+        int main(void) { static int a[1-2*!(sizeof(void *) <= 5)]; a[0]=0; return 0; }
+-----------
+Command line: `/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang++ /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmp8xr6saxs/testfile.cpp -o /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmp8xr6saxs/output.obj -c -march=armv7-a -mfpu=neon -mfloat-abi=softfp -D_FILE_OFFSET_BITS=64 -O0 -U_FORTIFY_SOURCE -fpermissive -Werror=implicit-function-declaration -Werror=unknown-warning-option -Werror=unused-command-line-argument -Werror=ignored-optimization-argument` -> 0
+Running compile:
+Working directory:  /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpkpgal5jt
+Code:
+
+        #include <stddef.h>
+        int main(void) { static int a[1-2*!(sizeof(void *) <= 4)]; a[0]=0; return 0; }
+-----------
+Command line: `/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang++ /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpkpgal5jt/testfile.cpp -o /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpkpgal5jt/output.obj -c -march=armv7-a -mfpu=neon -mfloat-abi=softfp -D_FILE_OFFSET_BITS=64 -O0 -U_FORTIFY_SOURCE -fpermissive -Werror=implicit-function-declaration -Werror=unknown-warning-option -Werror=unused-command-line-argument -Werror=ignored-optimization-argument` -> 0
+Running compile:
+Working directory:  /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmp0zl4j7yk
+Code:
+
+-----------
+Command line: `/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang++ /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmp0zl4j7yk/testfile.cpp -o /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmp0zl4j7yk/output.obj -c -march=armv7-a -mfpu=neon -mfloat-abi=softfp -D_FILE_OFFSET_BITS=64 -O0 -U_FORTIFY_SOURCE -fpermissive -Werror=implicit-function-declaration -Werror=unknown-warning-option -Werror=unused-command-line-argument -Werror=ignored-optimization-argument --print-search-dirs` -> 0
+stdout:
+programs: =/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin
+libraries: =/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.7:/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.7/lib/linux/arm:/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib/arm-linux-androideabi/30:/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib/arm-linux-androideabi:/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib/../lib:/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib
+-----------
+Run-time dependency libdrm found: YES 2.4.110
+Program bison found: YES (/usr/bin/bison)
+Running command: /usr/bin/bison --version
+--- stdout ---
+bison (GNU Bison) 3.8.2
+Written by Robert Corbett and Richard Stallman.
+
+Copyright (C) 2021 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+--- stderr ---
+
+
+Program bison found: YES 3.8.2 3.8.2 (/usr/bin/bison)
+Program flex found: YES (/usr/bin/flex)
+Running compile:
+Working directory:  /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpo3m3r47w
+Code:
+int main(void) { return 0; }
+
+-----------
+Command line: `/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpo3m3r47w/testfile.c -o /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpo3m3r47w/output.exe -march=armv7-a -mfpu=neon -mfloat-abi=softfp -D_FILE_OFFSET_BITS=64 -O0 -U_FORTIFY_SOURCE -Werror=implicit-function-declaration -Wl,--fatal-warnings -Wl,--gc-sections -Wl,--build-id=none` -> 0
+Compiler for C supports link arguments -Wl,--gc-sections: YES 
+Running compile:
+Working directory:  /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmp8x8ytkoq
+Code:
+extern int i;
+int i;
+
+-----------
+Command line: `/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmp8x8ytkoq/testfile.c -o /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmp8x8ytkoq/output.obj -c -march=armv7-a -mfpu=neon -mfloat-abi=softfp -D_FILE_OFFSET_BITS=64 -O0 -U_FORTIFY_SOURCE -Werror=implicit-function-declaration -Werror=unknown-warning-option -Werror=unused-command-line-argument -Werror=ignored-optimization-argument -ffunction-sections` -> 0
+Compiler for C supports arguments -ffunction-sections: YES 
+Running compile:
+Working directory:  /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpx5cqh5jt
+Code:
+extern int i;
+int i;
+
+-----------
+Command line: `/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpx5cqh5jt/testfile.c -o /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpx5cqh5jt/output.obj -c -march=armv7-a -mfpu=neon -mfloat-abi=softfp -D_FILE_OFFSET_BITS=64 -O0 -U_FORTIFY_SOURCE -Werror=implicit-function-declaration -Werror=unknown-warning-option -Werror=unused-command-line-argument -Werror=ignored-optimization-argument -fdata-sections` -> 0
+Compiler for C supports arguments -fdata-sections: YES 
+Program nm found: YES (/usr/bin/nm)
+Program symbols-check.py found: YES (/usr/bin/python3 /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/bin/symbols-check.py)
+Program install_megadrivers.py found: YES (/usr/bin/python3 /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/bin/install_megadrivers.py)
+WARNING: Library target 'GLESv1_CM' has 'name_prefix' set. Compilers may not find it from its '-lGLESv1_CM' linker flag in the 'glesv1_cm.pc' pkg-config file.
+WARNING: Library target 'GLESv1_CM' has 'name_prefix' set. Compilers may not find it from its '-lGLESv1_CM' linker flag in the 'glesv1_cm-uninstalled.pc' pkg-config file.
+Pkg-config binary for host machine specified from cross file, native file, or env var as ['/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/pkg-config-cross']
+Found pkg-config: YES (/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/pkg-config-cross) 1.8.0
+WARNING: Library target 'GLESv2' has 'name_prefix' set. Compilers may not find it from its '-lGLESv2' linker flag in the 'glesv2.pc' pkg-config file.
+WARNING: Library target 'GLESv2' has 'name_prefix' set. Compilers may not find it from its '-lGLESv2' linker flag in the 'glesv2-uninstalled.pc' pkg-config file.
+Program decode.py found: YES (/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/src/compiler/isaspec/decode.py)
+Program encode.py found: YES (/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/src/compiler/isaspec/encode.py)
+Running compile:
+Working directory:  /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpizjqo22k
+Code:
+
+        #define mincore meson_disable_define_of_mincore
+        
+        #include <limits.h>
+        #undef mincore
+        
+        #ifdef __cplusplus
+        extern "C"
+        #endif
+        char mincore (void);
+        
+        #if defined __stub_mincore || defined __stub___mincore
+        fail fail fail this function is not going to work
+        #endif
+        
+        int main(void) {
+          return mincore ();
+        }
+-----------
+Command line: `/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpizjqo22k/testfile.c -o /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/meson-private/tmpizjqo22k/output.exe -march=armv7-a -mfpu=neon -mfloat-abi=softfp -D_FILE_OFFSET_BITS=64 -O0 -U_FORTIFY_SOURCE -Werror=implicit-function-declaration -std=c11 -Wl,--build-id=none` -> 0
+Checking for function "mincore" : YES 
+WARNING: Library target 'EGL_soft' has 'name_prefix' set. Compilers may not find it from its '-lEGL_soft' linker flag in the 'egl.pc' pkg-config file.
+WARNING: Library target 'EGL_soft' has 'name_prefix' set. Compilers may not find it from its '-lEGL_soft' linker flag in the 'egl-uninstalled.pc' pkg-config file.
+Message: Configuration summary:
+        
+        prefix:          /usr/local
+        libdir:          lib
+        includedir:      include
+        
+        OpenGL:          yes (ES1: yes ES2: yes)
+        OSMesa:          no
+        
+        DRI platform:    drm
+        DRI drivers:     no
+        DRI driver dir:  /usr/local/lib/dri
+        
+        EGL:             yes
+        EGL drivers:     builtin:egl_dri2 builtin:egl_dri3
+        EGL/Vulkan/VL platforms:   android surfaceless
+        GBM:             no
+        
+        Vulkan drivers:  no
+        
+        llvm:            no
+        
+        Gallium drivers: swrast
+        Gallium st:      mesa
+        HUD lmsensors:   no
+        
+        Shared-glapi:    yes
+        
+        Perfetto:        no
+        Perfetto ds:     auto
+
+Build targets in project: 110
+WARNING: Project specifies a minimum meson_version '>= 0.52' but uses features which were added in newer versions:
+ * 0.54.0: {'fallback arg in dependency'}
+NOTICE: Future-deprecated features used:
+ * 0.55.0: {'Program.path'}
+ * 0.56.0: {'meson.source_root'}
+ * 1.1.0: {'"boolean option" keyword argument "value" of type str'}
+
+mesa 21.3.9
+
+  Subprojects (for host machine)
+    expat               : YES
+
+  User defined options
+    Cross files         : /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/cross-linux.txt
+    android-stub        : true
+    b_lto               : false
+    b_ndebug            : true
+    build-tests         : false
+    buildtype           : release
+    dri-drivers         : 
+    dri-search-path     : /vendor/lib/egl
+    egl                 : enabled
+    egl-lib-suffix      : _soft
+    egl-native-platform : android
+    gallium-drivers     : swrast
+    gallium-nine        : false
+    gallium-opencl      : disabled
+    gallium-xa          : disabled
+    gbm                 : disabled
+    gles1               : enabled
+    gles2               : enabled
+    glvnd               : false
+    glx                 : disabled
+    libunwind           : disabled
+    llvm                : disabled
+    lmsensors           : disabled
+    opengl              : true
+    osmesa              : false
+    platform-sdk-version: 30
+    platforms           : android
+    shader-cache        : disabled
+    shared-glapi        : enabled
+    valgrind            : disabled
+    vulkan-drivers      : 
+    wrap_mode           : default
+    zstd                : disabled
+
+Found ninja-1.13.2 at /usr/local/bin/ninja
+Running compile:
+Working directory:  /tmp/tmp8f4gyn07
+Code:
+int i = static_cast<int>(0);
+-----------
+Command line: `/opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang++ /tmp/tmp8f4gyn07/testfile.cpp -o /tmp/tmp8f4gyn07/output.obj -D_FILE_OFFSET_BITS=64 -c -std=c++14` -> 0
+Compiler accepts -std=c++14: YES
+Failed to guess install tag for /usr/local/share/drirc.d/00-mesa-defaults.conf
+Failed to guess install tag for install script: /usr/bin/python3 /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/bin/install_megadrivers.py /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/src/gallium/targets/dri/libgallium_dri.so /usr/local/lib/dri swrast_dri.so kms_swrast_dri.so
+!meson_ci!/ci_include "/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/build.ninja"
+Failed to guess install tag for /usr/local/share/drirc.d/00-mesa-defaults.conf
+Failed to guess install tag for install script: /usr/bin/python3 /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/bin/install_megadrivers.py /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/src/gallium/targets/dri/libgallium_dri.so /usr/local/lib/dri swrast_dri.so kms_swrast_dri.so
+Failed to guess install tag for /usr/local/share/drirc.d/00-mesa-defaults.conf
+Failed to guess install tag for install script: /usr/bin/python3 /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/bin/install_megadrivers.py /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/src/gallium/targets/dri/libgallium_dri.so /usr/local/lib/dri swrast_dri.so kms_swrast_dri.so
+Failed to guess install tag for /usr/local/share/drirc.d/00-mesa-defaults.conf
+Failed to guess install tag for install script: /usr/bin/python3 /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/bin/install_megadrivers.py /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build/src/gallium/targets/dri/libgallium_dri.so /usr/local/lib/dri swrast_dri.so kms_swrast_dri.so

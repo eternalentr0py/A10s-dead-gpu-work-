@@ -1,0 +1,12 @@
+libEGL_soft.so
+libc.so
+libcutils.so
+libdl.so
+libdrm_soft.so
+libglapi_soft.so
+libhardware.so
+liblog.so
+libm.so
+libnativewindow.so
+libsync.so
+libz.so

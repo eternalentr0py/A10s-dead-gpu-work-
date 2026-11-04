@@ -1,0 +1,278 @@
+### candidate 1: system=linux extra=
+DEPRECATION: "pkgconfig" entry is deprecated and should be replaced by "pkg-config"
+The Meson build system
+Version: 1.12.1
+Source dir: /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa
+Build dir: /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/build
+Build type: cross build
+Program python3 found: YES (/usr/bin/python3)
+Project name: mesa
+Project version: 21.3.9
+C compiler for the host machine: /opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang (clang 14.0.7 "Android (9352603, based on r450784d1) clang version 14.0.7 (https://android.googlesource.com/toolchain/llvm-project 4c603efb0cca074e9238af8b4106c30add4418f6)")
+C linker for the host machine: /opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang ld.lld 14.0.7
+C++ compiler for the host machine: /opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang++ (clang 14.0.7 "Android (9352603, based on r450784d1) clang version 14.0.7 (https://android.googlesource.com/toolchain/llvm-project 4c603efb0cca074e9238af8b4106c30add4418f6)")
+C++ linker for the host machine: /opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang++ ld.lld 14.0.7
+C compiler for the build machine: cc (gcc 11.4.0 "cc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0")
+C linker for the build machine: cc ld.bfd 2.38
+C++ compiler for the build machine: c++ (gcc 11.4.0 "c++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0")
+C++ linker for the build machine: c++ ld.bfd 2.38
+Build machine cpu family: x86_64
+Build machine cpu: x86_64
+Host machine cpu family: arm
+Host machine cpu: armv7
+Target machine cpu family: arm
+Target machine cpu: armv7
+Program python3 found: YES (/usr/bin/python3)
+WARNING: You should add the boolean check kwarg to the run_command call.
+         It currently defaults to false,
+         but it will default to true in meson 2.0.
+         See also: https://github.com/mesonbuild/meson/issues/9300
+Fetching value of define "ETIME" : 62 
+Checking for function "bswap32" : YES 
+Checking for function "bswap64" : YES 
+Checking for function "clz" : YES 
+Checking for function "clzll" : YES 
+Checking for function "ctz" : YES 
+Checking for function "expect" : YES 
+Checking for function "ffs" : YES 
+Checking for function "ffsll" : YES 
+Checking for function "popcount" : YES 
+Checking for function "popcountll" : YES 
+Checking for function "unreachable" : YES 
+Checking for function "types_compatible_p" : YES 
+Compiler for C supports function attribute const: YES 
+Compiler for C supports function attribute flatten: YES 
+Compiler for C supports function attribute malloc: YES 
+Compiler for C supports function attribute pure: YES 
+Compiler for C supports function attribute unused: YES 
+Compiler for C supports function attribute warn_unused_result: YES 
+Compiler for C supports function attribute weak: YES 
+Compiler for C supports function attribute format: YES 
+Compiler for C supports function attribute packed: YES 
+Compiler for C supports function attribute returns_nonnull: YES 
+Compiler for C supports function attribute alias: YES 
+Compiler for C supports function attribute noreturn: YES 
+Compiler for C supports function attribute visibility:hidden: YES 
+Checking if "__uint128_t" compiles: NO 
+Compiler for C supports arguments -Werror=implicit-function-declaration: YES 
+Compiler for C supports arguments -Werror=missing-prototypes: YES 
+Compiler for C supports arguments -Werror=return-type: YES 
+Compiler for C supports arguments -Werror=empty-body: YES 
+Compiler for C supports arguments -Werror=incompatible-pointer-types: YES 
+Compiler for C supports arguments -Werror=int-conversion: YES 
+Compiler for C supports arguments -Wimplicit-fallthrough: YES 
+Compiler for C supports arguments -Wno-missing-field-initializers: YES 
+Compiler for C supports arguments -Wno-format-truncation: NO 
+Compiler for C supports arguments -fno-math-errno: YES 
+Compiler for C supports arguments -fno-trapping-math: YES 
+Compiler for C supports arguments -Qunused-arguments: YES 
+Compiler for C supports arguments -fno-common: YES 
+Compiler for C supports arguments -Werror=format: YES 
+Compiler for C supports arguments -Wformat-security: YES 
+Compiler for C supports arguments -Werror=thread-safety: YES 
+Compiler for C++ supports arguments -Werror=return-type: YES 
+Compiler for C++ supports arguments -Werror=empty-body: YES 
+Compiler for C++ supports arguments -Wno-non-virtual-dtor: YES 
+Compiler for C++ supports arguments -Wno-missing-field-initializers: YES 
+Compiler for C++ supports arguments -Wno-format-truncation: NO 
+Compiler for C++ supports arguments -fno-math-errno: YES 
+Compiler for C++ supports arguments -fno-trapping-math: YES 
+Compiler for C++ supports arguments -Qunused-arguments: YES 
+Compiler for C++ supports arguments -flifetime-dse=1: NO 
+Compiler for C++ supports arguments -Werror=format: YES 
+Compiler for C++ supports arguments -Wformat-security: YES 
+Compiler for C supports arguments -Wno-override-init: YES 
+Compiler for C supports arguments -Wno-initializer-overrides: YES 
+Compiler for C supports arguments -Werror=pointer-arith: YES 
+Compiler for C++ supports arguments -Werror=pointer-arith: YES 
+Compiler for C supports arguments -Werror=gnu-empty-initializer: YES 
+Compiler for C++ supports arguments -Werror=gnu-empty-initializer: YES 
+Compiler for C supports arguments -Wmicrosoft-enum-value: YES 
+Checking if "GCC atomic builtins" compiles: YES 
+Checking if "GCC atomic builtins required -latomic" links: YES 
+Checking if "GCC 64bit atomics" with dependency  links: YES 
+Library ws2_32 found: NO
+Header "sys/sysmacros.h" has symbol "major" : YES 
+Header "sys/sysmacros.h" has symbol "minor" : YES 
+Header "sys/sysmacros.h" has symbol "makedev" : YES 
+Header "sys/mkdev.h" has symbol "major" : NO 
+Check usable header "sched.h" : YES 
+Checking for function "sched_getaffinity" : YES 
+Check usable header "xlocale.h" : YES 
+Check usable header "linux/futex.h" : YES 
+Check usable header "endian.h" : YES 
+Check usable header "dlfcn.h" : YES 
+Check usable header "sys/shm.h" : YES 
+Check usable header "cet.h" : YES 
+Check usable header "pthread_np.h" : NO 
+Checking for function "strtof" : YES 
+Checking for function "mkostemp" : YES 
+Checking for function "timespec_get" : YES 
+Checking for function "memfd_create" : YES 
+Checking for function "random_r" : NO 
+Checking for function "flock" : YES 
+Checking for function "strtok_r" : YES 
+Checking for function "getrandom" : YES 
+Checking for function "qsort_r" : NO 
+Checking for function "qsort_s" : NO 
+Header "errno.h" has symbol "program_invocation_name" : NO 
+Checking for function "posix_memalign" : YES 
+Checking whether type "struct dirent" has member "d_type" : YES 
+Checking if "strtod has locale support" links: YES 
+Checking if "Bsymbolic" links: YES 
+Checking if "gc-sections" links: YES 
+Checking if "version-script" links: YES 
+Checking if "dynamic-list" links: YES 
+Compiler for C supports link arguments -Wl,--build-id=sha1: YES 
+Checking for function "dlopen" : YES 
+Checking for function "dladdr" with dependency : YES 
+Checking for function "dl_iterate_phdr" : YES 
+Checking for function "clock_gettime" : YES 
+work/mesa/meson.build:1519: WARNING: Project targets '>= 0.52' but uses feature introduced in '0.54.0': fallback arg in dependency.
+Found pkg-config: YES (/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/pkg-config-cross) 1.8.0
+Run-time dependency zlib found: YES 1.2.12
+Run-time dependency threads found: YES
+Checking for function "pthread_setaffinity_np" with dependency threads: NO 
+work/mesa/meson.build:1564: WARNING: Project targets '>= 0.52' but uses feature introduced in '0.54.0': fallback arg in dependency.
+Found CMake: NO
+Run-time dependency expat found: NO  (tried pkg-config and cmake)
+Looking for a fallback subproject for the dependency expat
+Downloading expat source from https://github.com/libexpat/libexpat/releases/download/R_2_2_5/expat-2.2.5.tar.bz2
+Downloading expat patch from https://github.com/mesonbuild/expat/releases/download/2.2.5-4/expat.zip
+
+Executing subproject expat for machine: host 
+
+expat| Project name: expat
+expat| Project version: 2.2.5
+expat| C compiler for the host machine: /opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang (clang 14.0.7 "Android (9352603, based on r450784d1) clang version 14.0.7 (https://android.googlesource.com/toolchain/llvm-project 4c603efb0cca074e9238af8b4106c30add4418f6)")
+expat| C linker for the host machine: /opt/hostedtoolcache/ndk/r25c/x64/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang ld.lld 14.0.7
+expat| C compiler for the build machine: cc (gcc 11.4.0 "cc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0")
+expat| C linker for the build machine: cc ld.bfd 2.38
+expat| Checking for function "arc4random_buf" : YES
+expat| Has header "dlfcn.h" : YES
+expat| Has header "fcntl.h" : YES
+expat| Has header "inttypes.h" : YES
+expat| Has header "memory.h" : YES
+expat| Has header "stdint.h" : YES
+expat| Has header "stdlib.h" : YES
+expat| Has header "strings.h" : YES
+expat| Has header "string.h" : YES
+expat| Has header "sys/stat.h" : YES
+expat| Has header "sys/types.h" : YES
+expat| Has header "unistd.h" : YES
+expat| Checking for function "getpagesize" : YES
+expat| Checking for function "memmove" : YES
+expat| Checking for function "bcopy" : YES
+expat| Checking for function "mmap" : YES
+expat| Checking for function "getrandom" : YES (cached)
+expat| Header "sys/types.h" has symbol "off_t" : YES
+expat| Header "sys/types.h" has symbol "size_t" : YES
+expat| Checking if "SYS_getrandom" compiles: YES
+expat| Configuring expat_config.h using configuration
+expat| Compiler for C supports arguments -fno-strict-aliasing: YES
+expat| Build targets in project: 1
+expat| Subproject expat finished.
+
+Dependency expat for host machine from subproject subprojects/expat-2.2.5 found: YES 2.2.5
+Library m found: YES
+Run-time dependency libdrm found: YES 2.4.110
+Program bison found: YES (/usr/bin/bison)
+Program bison found: YES 3.8.2 3.8.2 (/usr/bin/bison)
+Program flex found: YES (/usr/bin/flex)
+Compiler for C supports link arguments -Wl,--gc-sections: YES 
+Compiler for C supports arguments -ffunction-sections: YES 
+Compiler for C supports arguments -fdata-sections: YES 
+Program nm found: YES (/usr/bin/nm)
+Program symbols-check.py found: YES (/usr/bin/python3 /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/bin/symbols-check.py)
+Program install_megadrivers.py found: YES (/usr/bin/python3 /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/bin/install_megadrivers.py)
+WARNING: Library target 'GLESv1_CM' has 'name_prefix' set. Compilers may not find it from its '-lGLESv1_CM' linker flag in the 'glesv1_cm.pc' pkg-config file.
+WARNING: Library target 'GLESv1_CM' has 'name_prefix' set. Compilers may not find it from its '-lGLESv1_CM' linker flag in the 'glesv1_cm-uninstalled.pc' pkg-config file.
+Found pkg-config: YES (/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/pkg-config-cross) 1.8.0
+WARNING: Library target 'GLESv2' has 'name_prefix' set. Compilers may not find it from its '-lGLESv2' linker flag in the 'glesv2.pc' pkg-config file.
+WARNING: Library target 'GLESv2' has 'name_prefix' set. Compilers may not find it from its '-lGLESv2' linker flag in the 'glesv2-uninstalled.pc' pkg-config file.
+Program decode.py found: YES (/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/src/compiler/isaspec/decode.py)
+Program encode.py found: YES (/home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/mesa/src/compiler/isaspec/encode.py)
+Checking for function "mincore" : YES 
+WARNING: Library target 'EGL_soft' has 'name_prefix' set. Compilers may not find it from its '-lEGL_soft' linker flag in the 'egl.pc' pkg-config file.
+WARNING: Library target 'EGL_soft' has 'name_prefix' set. Compilers may not find it from its '-lEGL_soft' linker flag in the 'egl-uninstalled.pc' pkg-config file.
+Message: Configuration summary:
+        
+        prefix:          /usr/local
+        libdir:          lib
+        includedir:      include
+        
+        OpenGL:          yes (ES1: yes ES2: yes)
+        OSMesa:          no
+        
+        DRI platform:    drm
+        DRI drivers:     no
+        DRI driver dir:  /usr/local/lib/dri
+        
+        EGL:             yes
+        EGL drivers:     builtin:egl_dri2 builtin:egl_dri3
+        EGL/Vulkan/VL platforms:   android surfaceless
+        GBM:             no
+        
+        Vulkan drivers:  no
+        
+        llvm:            no
+        
+        Gallium drivers: swrast
+        Gallium st:      mesa
+        HUD lmsensors:   no
+        
+        Shared-glapi:    yes
+        
+        Perfetto:        no
+        Perfetto ds:     auto
+
+Build targets in project: 110
+WARNING: Project specifies a minimum meson_version '>= 0.52' but uses features which were added in newer versions:
+ * 0.54.0: {'fallback arg in dependency'}
+NOTICE: Future-deprecated features used:
+ * 0.55.0: {'Program.path'}
+ * 0.56.0: {'meson.source_root'}
+ * 1.1.0: {'"boolean option" keyword argument "value" of type str'}
+
+mesa 21.3.9
+
+  Subprojects (for host machine)
+    expat               : YES
+
+  User defined options
+    Cross files         : /home/runner/work/A10s-dead-gpu-work-/A10s-dead-gpu-work-/work/cross-linux.txt
+    android-stub        : true
+    b_lto               : false
+    b_ndebug            : true
+    build-tests         : false
+    buildtype           : release
+    dri-drivers         : 
+    dri-search-path     : /vendor/lib/egl
+    egl                 : enabled
+    egl-lib-suffix      : _soft
+    egl-native-platform : android
+    gallium-drivers     : swrast
+    gallium-nine        : false
+    gallium-opencl      : disabled
+    gallium-xa          : disabled
+    gbm                 : disabled
+    gles1               : enabled
+    gles2               : enabled
+    glvnd               : false
+    glx                 : disabled
+    libunwind           : disabled
+    llvm                : disabled
+    lmsensors           : disabled
+    opengl              : true
+    osmesa              : false
+    platform-sdk-version: 30
+    platforms           : android
+    shader-cache        : disabled
+    shared-glapi        : enabled
+    valgrind            : disabled
+    vulkan-drivers      : 
+    wrap_mode           : default
+    zstd                : disabled
+
+Found ninja-1.13.2 at /usr/local/bin/ninja
+### candidate 1 configured OK

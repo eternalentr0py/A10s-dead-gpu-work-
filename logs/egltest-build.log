@@ -1,0 +1,4 @@
+tools/egltest.c:131:20: warning: unused typedef 'pf_v' [-Wunused-local-typedef]
+    typedef void (*pf_v)(void);
+                   ^
+1 warning generated.
