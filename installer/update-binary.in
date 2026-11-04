@@ -107,14 +107,32 @@ if [ "$MODE" = "install" ]; then
   TESTBIN="$W/bin/fbdev_test"
   TRES="/tmp/softgfx_livetest.txt"
   rm -f "$TRES"
+
+  # libEGL_soft.so needs libnativewindow.so (a normal platform lib, always present on a real
+  # boot) which lives under /system - TWRP does not mount /system by default. Try to mount it
+  # read-only now so the live test's dlopen() can actually find it; this does not affect the
+  # real boot path at all, where /system is always mounted by then.
+  for sp in /system_root /system; do mkdir -p "$sp" 2>/dev/null; done
+  if ! grep -q " /system_root " /proc/mounts 2>/dev/null && ! grep -q " /system " /proc/mounts 2>/dev/null; then
+    for d in /dev/block/platform/bootdevice/by-name/system /dev/block/by-name/system /dev/block/mmcblk0p35; do
+      [ -e "$d" ] && mount -t ext4 -o ro "$d" /system_root 2>/dev/null && break
+      [ -e "$d" ] && mount -t ext4 -o ro "$d" /system 2>/dev/null && break
+    done
+  fi
+  NW_PATH=""
+  for p in /system_root/system/lib /system/lib "$V/lib"; do
+    [ -f "$p/libnativewindow.so" ] && NW_PATH="$p" && break
+  done
+  [ -z "$NW_PATH" ] && ui_print "  (note: libnativewindow.so not found under /system or /vendor/lib - mount System in TWRP's Mount menu and re-run the live test manually if this fails)"
+
   if [ -x "$TESTBIN" ]; then
     FB=""
     for d in /dev/graphics/fb0 /dev/fb0; do [ -e "$d" ] && FB="$d" && break; done
     if [ -z "$FB" ]; then
       ui_print "  SKIPPED (no /dev/graphics/fb0 or /dev/fb0 found on this device)"
     else
-      env LD_LIBRARY_PATH="$LIBDIR:$LIBDIR/egl:/system/lib:/system_root/system/lib" \
-          LIBGL_DRIVERS_PATH="$LIBDIR/egl" LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=softpipe \
+      env LD_LIBRARY_PATH="$LIBDIR:$NW_PATH:/system_root/system/lib:/system/lib:$V/lib" \
+          LIBGL_DRIVERS_PATH="$LIBDIR" LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=softpipe \
           "$TESTBIN" "$LIBDIR/libEGL_soft.so" "$LIBDIR/libGLESv2_soft.so" "$FB" > "$TRES" 2>&1
       TRC=$?
       # show the short verdict line plus whatever got flagged FAIL, in the TWRP log
