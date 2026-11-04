@@ -101,6 +101,9 @@ jobs:
 
       - name: Push logs to ci-logs branch (so they can be read without blob access)
         if: always()
+        continue-on-error: true   # redundant with "Publish logs..." below; a transient push
+                                   # rejection here ("fatal error in commit_refs") should not
+                                   # fail the whole job when the actual build/package succeeded
         run: |
           mkdir -p /tmp/ci && cd /tmp/ci && rm -rf r && git init -q r && cd r
           git config user.name "ci"; git config user.email "ci@example.invalid"
