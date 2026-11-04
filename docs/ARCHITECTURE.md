@@ -18,12 +18,12 @@ path for that, so stage 2 needs a shim or a Mesa patch that backs EGLImages with
 ## Components
 | # | Component | Approach | Status |
 |---|---|---|---|
-| 1 | GLES 1/2/3 + EGL | Mesa **softpipe** (no LLVM; works on ARMv7) cross-built with the NDK, ARMv7, API 30 | stage 1 (CI build only) |
-| 2 | EGL native-buffer shim | CPU copy-in/copy-out EGLImage backed by `gralloc` lock/unlock; native fence = already-signalled fd | not started |
-| 3 | gralloc | Replace allocator 4.0 + mapper 4.0, or fall back to 2.0/3.0 so `gralloc.default` (ashmem + fb) is used | design |
-| 4 | HWC | Remove `hwcomposer.mt6765.so` so composer falls back to `hwc2onfbadapter` (fb0 client composition) | design |
-| 5 | Wiring | `ro.hardware.egl=soft`, disable PVR/GED services, vintf edit, SELinux permissive for bring-up | design |
-| 6 | TWRP zip | Mount `/vendor` `/system_root`, back up originals, install, `uninstall` zip that restores | not started |
+| 1 | GLES 1/2/3 + EGL | Mesa **softpipe** (no LLVM; works on ARMv7) cross-built with the NDK, ARMv7, API 30 | implemented, in installer |
+| 2 | EGL native-buffer shim | CPU copy-in/copy-out EGLImage backed by `gralloc` lock/unlock; native fence = already-signalled fd | implemented (`stage2/eglshim/`), in installer |
+| 3 | gralloc | Replace allocator 4.0 + mapper 4.0, or fall back to 2.0/3.0 so `gralloc.default` (ashmem + fb) is used | **partial/unconfirmed**: installer sets `ro.hardware.gralloc=default` (device already ships `gralloc.default.so` alongside `gralloc.rogue.so`) if the allocator service respects it. `android.hardware.graphics.allocator@4.0-service-mediatek` is statically linked to `libPVRMtkutils.so` though (`context/readelf/`), so this is NOT confirmed to route allocation away from the PVR driver - may still need a real custom allocator/mapper replacement. Needs on-device data to resolve. |
+| 4 | HWC | Remove `hwcomposer.mt6765.so` so composer falls back to `hwc2onfbadapter` (fb0 client composition) | implemented, in installer (rename to `.softgfx_disabled` / restore on uninstall) |
+| 5 | Wiring | `ro.hardware.egl=soft`, disable PVR/GED services, vintf edit, SELinux permissive for bring-up | `ro.hardware.egl`/`ro.opengles.version`/`ro.hardware.gralloc` props done. PVR/GED service disabling, vintf edit, and SELinux are **not started** - blocked on not having `/vendor/etc/init/*.rc` and the vintf compatibility matrix from the device (`tools/collect_diag.sh` collects these; not yet received). |
+| 6 | TWRP zip | Mount `/vendor` `/system_root`, back up originals, install, `uninstall` zip that restores | implemented, CI-built |
 
 ## Risks / unknowns (be honest)
 - Cannot be tested here. Every stage needs on-device logs. Expect several iterations.

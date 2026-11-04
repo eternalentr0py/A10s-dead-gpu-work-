@@ -12,6 +12,14 @@ LIBDIR="$V/lib/egl"
 FILES="libEGL_soft.so libEGL_mesa_real.so libGLESv1_CM_soft.so libGLESv2_soft.so libglapi_soft.so libdrm_soft.so swrast_dri.so"
 OPENGLES_VER=196609          # GLES 3.1 (what Mesa softpipe provides); stock value is 196610 (3.2)
 
+# hwcomposer.mt6765.so pulls in libged.so (PowerVR's GPU governor) and libgralloc_extra.so
+# (PVR-aware buffer metadata) - both still hit the dead GPU even for a plain framebuffer
+# composite. The composer service (android.hardware.graphics.composer@2.1-service) already
+# links libhwc2onfbadapter.so, so removing the MTK module lets it fall back to fb0 client
+# composition with no GPU involvement. Backed up/restored the same way as the EGL libs.
+HWC_DIR="$V/lib/hw"
+HWC_FILE="hwcomposer.mt6765.so"
+
 ui_print() {
   if [ -n "$OUTFD" ] && [ -e "/proc/self/fd/$OUTFD" ]; then
     echo "ui_print $1" > "/proc/self/fd/$OUTFD"; echo "ui_print" > "/proc/self/fd/$OUTFD"
@@ -96,8 +104,27 @@ if [ "$MODE" = "install" ]; then
   ui_print "- updating $V/build.prop"
   setprop_file "$V/build.prop" ro.hardware.egl soft
   setprop_file "$V/build.prop" ro.opengles.version "$OPENGLES_VER"
+  # Best-effort: this device already ships a gralloc.default.so (AOSP's CPU/ashmem fallback)
+  # next to gralloc.rogue.so (the real PVR-backed one). If the allocator service respects
+  # ro.hardware.gralloc the way ro.hardware.egl is respected, this alone may route buffer
+  # allocation away from the dead GPU. Harmless if it's ignored - MediaTek's allocator@4.0
+  # service is statically linked to libPVRMtkutils.so either way, so this is not confirmed
+  # to be sufficient; see docs/ARCHITECTURE.md component #3, still open.
+  if [ -f "$V/lib/hw/gralloc.default.so" ]; then
+    setprop_file "$V/build.prop" ro.hardware.gralloc default
+    ui_print "  $(grep '^ro.hardware.gralloc=' "$V/build.prop")  (best-effort, unconfirmed - gralloc.default.so exists on this device)"
+  fi
   ui_print "  $(grep '^ro.hardware.egl=' "$V/build.prop")"
   ui_print "  $(grep '^ro.opengles.version=' "$V/build.prop")"
+
+  ui_print "- disabling $HWC_FILE (falls back to libhwc2onfbadapter)"
+  if [ -f "$HWC_DIR/$HWC_FILE" ]; then
+    [ -f "$BK/$HWC_FILE" ] || cp -p "$HWC_DIR/$HWC_FILE" "$BK/$HWC_FILE"
+    mv "$HWC_DIR/$HWC_FILE" "$HWC_DIR/$HWC_FILE.softgfx_disabled"
+    ui_print "  moved to $HWC_DIR/$HWC_FILE.softgfx_disabled"
+  else
+    ui_print "  not found at $HWC_DIR/$HWC_FILE (already disabled, or different path - check manually)"
+  fi
 
   echo "$FILES" > "$BK/installed-files.txt"
   sync
@@ -156,10 +183,22 @@ if [ "$MODE" = "install" ]; then
 else
   ui_print "- removing libraries"
   for f in $FILES; do rm -f "$LIBDIR/$f"; done
+
+  ui_print "- restoring $HWC_FILE"
+  if [ -f "$HWC_DIR/$HWC_FILE.softgfx_disabled" ]; then
+    mv "$HWC_DIR/$HWC_FILE.softgfx_disabled" "$HWC_DIR/$HWC_FILE"
+    ui_print "  restored from the renamed copy"
+  elif [ -f "$BK/$HWC_FILE" ]; then
+    cp -p "$BK/$HWC_FILE" "$HWC_DIR/$HWC_FILE"
+    ui_print "  restored from $BK/$HWC_FILE"
+  else
+    ui_print "  no disabled/backed-up copy found; leaving $HWC_DIR as is"
+  fi
+
   if [ -f "$BK/build.prop.orig" ]; then
     cp "$BK/build.prop.orig" "$V/build.prop" && ui_print "- restored original build.prop"
   else
-    ui_print "- no backup of build.prop found; leaving it as is (check ro.hardware.egl)"
+    ui_print "- no backup of build.prop found; leaving it as is (check ro.hardware.egl / ro.hardware.gralloc)"
   fi
   sync
   ui_print "Done. Stock libraries untouched."
