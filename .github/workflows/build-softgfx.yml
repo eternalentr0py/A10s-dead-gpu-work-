@@ -61,12 +61,15 @@ jobs:
           "$TC/llvm-strip" --strip-unneeded "$D/egl/libEGL_soft.so" "$D/egl/libGLESv2_soft.so"
           # egltest (dynamic; dlopens the libs by path)
           "$CC" -O2 -Wall -o out/egltest tools/egltest.c -ldl 2>&1 | tee out/egltest-build.log
+          # fbdev_test: real EGL/GLES render blitted straight to /dev/graphics/fb0 (visible on the
+          # TWRP screen without SurfaceFlinger). Used both standalone and as the installer's live test.
+          "$CC" -O2 -Wall -o out/fbdev_test tools/fbdev_test.c -ldl 2>&1 | tee out/fbdev_test-build.log
           # flat bundle: push its CONTENTS straight into /tmp/softgfx
           mkdir -p out/bundle
-          cp out/egltest tools/run_test.sh out/bundle/
+          cp out/egltest out/fbdev_test tools/run_test.sh out/bundle/
           cp -r out/vendor_root out/bundle/vendor_root
-          chmod 755 out/bundle/egltest out/bundle/run_test.sh
-          (cd out/bundle && zip -qr -X ../softgfx-test-bundle.zip egltest run_test.sh vendor_root)
+          chmod 755 out/bundle/egltest out/bundle/fbdev_test out/bundle/run_test.sh
+          (cd out/bundle && zip -qr -X ../softgfx-test-bundle.zip egltest fbdev_test run_test.sh vendor_root)
           unzip -l out/softgfx-test-bundle.zip
           for f in "$D"/egl/*.so; do echo "# $f"; "$TC/llvm-readelf" -d "$f" | grep -E "SONAME|NEEDED"; done > out/elf-report-final.txt
 
@@ -77,7 +80,10 @@ jobs:
             R="out/pkg-$MODE"; rm -rf "$R"; mkdir -p "$R/META-INF/com/google/android"
             sed -e "s/@MODE@/$MODE/g" -e "s/@VERSION@/$VER/g" installer/update-binary.in > "$R/META-INF/com/google/android/update-binary"
             cp installer/updater-script "$R/META-INF/com/google/android/updater-script"
-            if [ "$MODE" = install ]; then mkdir -p "$R/files"; cp -r out/vendor_root/vendor "$R/files/vendor"; fi
+            if [ "$MODE" = install ]; then
+              mkdir -p "$R/files"; cp -r out/vendor_root/vendor "$R/files/vendor"
+              mkdir -p "$R/bin"; cp out/fbdev_test "$R/bin/fbdev_test"; chmod 755 "$R/bin/fbdev_test"
+            fi
             chmod 755 "$R/META-INF/com/google/android/update-binary"
             (cd "$R" && zip -qr -X "../softgfx-$MODE" .)
           done

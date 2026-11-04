@@ -101,6 +101,37 @@ if [ "$MODE" = "install" ]; then
 
   echo "$FILES" > "$BK/installed-files.txt"
   sync
+
+  ui_print " "
+  ui_print "- live test: rendering with the installed EGL/GLES and blitting to the screen"
+  TESTBIN="$W/bin/fbdev_test"
+  TRES="/tmp/softgfx_livetest.txt"
+  rm -f "$TRES"
+  if [ -x "$TESTBIN" ]; then
+    FB=""
+    for d in /dev/graphics/fb0 /dev/fb0; do [ -e "$d" ] && FB="$d" && break; done
+    if [ -z "$FB" ]; then
+      ui_print "  SKIPPED (no /dev/graphics/fb0 or /dev/fb0 found on this device)"
+    else
+      env LD_LIBRARY_PATH="$LIBDIR:$LIBDIR/egl:/system/lib:/system_root/system/lib" \
+          LIBGL_DRIVERS_PATH="$LIBDIR/egl" LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=softpipe \
+          "$TESTBIN" "$LIBDIR/libEGL_soft.so" "$LIBDIR/libGLESv2_soft.so" "$FB" > "$TRES" 2>&1
+      TRC=$?
+      # show the short verdict line plus whatever got flagged FAIL, in the TWRP log
+      grep -E "^RESULT:|FAIL" "$TRES" | while read -r l; do ui_print "  $l"; done
+      if [ "$TRC" = "0" ]; then
+        ui_print "  LIVE TEST: PASS (exit=$TRC)"
+        ui_print "  Look at the screen now: a magenta border + a shaded triangle means it rendered."
+      else
+        ui_print "  LIVE TEST: FAIL (exit=$TRC) - see $TRES for details. Install is still in place;"
+        ui_print "  this does not undo anything, but the software stack likely isn't fully working."
+      fi
+      sleep 4
+    fi
+  else
+    ui_print "  SKIPPED (fbdev_test binary not found in the zip at bin/fbdev_test)"
+  fi
+
   ui_print " "
   ui_print "Done. Reboot to system."
   ui_print "To undo: flash softgfx-uninstaller.zip"
