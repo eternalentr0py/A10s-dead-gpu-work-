@@ -20,6 +20,15 @@ OPENGLES_VER=196609          # GLES 3.1 (what Mesa softpipe provides); stock val
 HWC_DIR="$V/lib/hw"
 HWC_FILE="hwcomposer.mt6765.so"
 
+# vendor.mediatek.hardware.gpu@1.0-service ("gpu-1-0" in init) is MTK's GPU-info/governor HIDL
+# service - confirmed from an actual device dump (vendor/etc/init/vendor.mediatek.hardware.gpu@1.0-service.rc)
+# to be a plain "class hal" autostart service with no listed dependents, so disabling it should
+# be safe; it still talks to the dead GPU (same libged path as hwcomposer did) for no boot-
+# critical reason. The allocator (vendor.gralloc-4-0) and composer (vendor.hwcomposer-2-1)
+# services are both confirmed required by the vendor vintf manifest and are left alone; they
+# still run, just without the PVR-touching HWC module alongside them.
+GPU_SVC_RC="$V/etc/init/vendor.mediatek.hardware.gpu@1.0-service.rc"
+
 ui_print() {
   if [ -n "$OUTFD" ] && [ -e "/proc/self/fd/$OUTFD" ]; then
     echo "ui_print $1" > "/proc/self/fd/$OUTFD"; echo "ui_print" > "/proc/self/fd/$OUTFD"
@@ -126,6 +135,19 @@ if [ "$MODE" = "install" ]; then
     ui_print "  not found at $HWC_DIR/$HWC_FILE (already disabled, or different path - check manually)"
   fi
 
+  ui_print "- disabling vendor.mediatek.hardware.gpu@1.0-service (gpu-1-0)"
+  if [ -f "$GPU_SVC_RC" ]; then
+    if grep -q "^[[:space:]]*disabled" "$GPU_SVC_RC"; then
+      ui_print "  already disabled"
+    else
+      [ -f "$BK/vendor.mediatek.hardware.gpu@1.0-service.rc" ] || cp -p "$GPU_SVC_RC" "$BK/vendor.mediatek.hardware.gpu@1.0-service.rc"
+      printf '%s\n' "    disabled" >> "$GPU_SVC_RC"
+      ui_print "  added 'disabled' to $GPU_SVC_RC"
+    fi
+  else
+    ui_print "  not found at $GPU_SVC_RC (path may differ on this build - check manually)"
+  fi
+
   echo "$FILES" > "$BK/installed-files.txt"
   sync
 
@@ -183,6 +205,13 @@ if [ "$MODE" = "install" ]; then
 else
   ui_print "- removing libraries"
   for f in $FILES; do rm -f "$LIBDIR/$f"; done
+
+  ui_print "- restoring vendor.mediatek.hardware.gpu@1.0-service"
+  if [ -f "$BK/vendor.mediatek.hardware.gpu@1.0-service.rc" ]; then
+    cp -p "$BK/vendor.mediatek.hardware.gpu@1.0-service.rc" "$GPU_SVC_RC" && ui_print "  restored $GPU_SVC_RC"
+  else
+    ui_print "  no backup found; leaving it as is"
+  fi
 
   ui_print "- restoring $HWC_FILE"
   if [ -f "$HWC_DIR/$HWC_FILE.softgfx_disabled" ]; then
